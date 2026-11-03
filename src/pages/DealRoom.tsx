@@ -59,7 +59,7 @@ export function DealRoom({ id, k }: { id: string; k: string }) {
         <section className="card"><h2>Activity</h2>
           <form onSubmit={e => { e.preventDefault(); const t = (e.currentTarget.elements.namedItem('c') as HTMLInputElement); if (t.value.trim()) { act('comment', { text: t.value }); t.value = ''; } }}>
             <label htmlFor="c" className="sr">Message the other party</label><input id="c" name="c" placeholder="Message the other party…" /><button className="small">Post</button></form>
-          <ol className="feed">{v.events.map((e: any) => <li key={e.id} className={e.role}><span className="who">{e.role}</span>{e.message}<time>{new Date(e.createdAt).toLocaleString()}</time></li>)}</ol>
+          <ol className="feed" tabIndex={0} aria-label="Activity log">{v.events.map((e: any) => <li key={e.id} className={e.role}><span className="who">{e.role}</span>{e.message}<time>{new Date(e.createdAt).toLocaleString()}</time></li>)}</ol>
         </section>
         <p className="muted small">AI engine: {v.config.llm ? 'LLM' : 'local rules (no LLM key set)'} · PayPal: {v.config.paypalServer ? 'sandbox, server capture' : 'sandbox buttons, simulated capture'}</p>
       </aside>

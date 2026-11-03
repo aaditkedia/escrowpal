@@ -37,3 +37,20 @@
 **Challenges:** Making acceptance criteria objective enough for an AI to judge, and mapping partial delivery to partial capture.
 **What's next:** Two-sided links, webhooks, Payouts for subcontractor splits, and an arbitration panel for disputes.
 **Built with:** react, typescript, vite, vercel, paypal-js-sdk, paypal-orders-api, llm, groq
+
+
+## v2 (Nov 2) — what changed and why
+Researched acclaimed projects and borrowed their best ideas:
+- AutoTrust AI Escrow (https://devpost.com/software/provera): AI verification plus auto-release. We added an inspection window with auto-release.
+- Agent Pay (https://devpost.com/software/agent-pay-v8fuwn): partial refunds by score, and the AI never holds keys. We added partial capture plus void, with release decided by people only.
+- Flow8 (https://devpost.com/software/flo8): milestone dashboard. We added a timeline stepper and a My deals page.
+- AutoTrust PayMesh: multi-agent arbiter with an audit trail. We added an AI mediator, signed-terms audit and a contract PDF.
+- AgentEscrow (https://devpost.com/software/agentescrow-8fqcps) is a direct competitor in this hackathon (agent-to-agent negotiation). We stand apart with human two-sided roles, risk scoring, a prompt-injection guard and the dispute mediator.
+
+Done: Neon + Drizzle persistence, capability-link roles, seller signature, proof uploads (stored as Postgres bytea instead of Vercel Blob), AI judge and mediator, risk score, activity feed, contract PDF, landing page, tests and live API e2e.
+
+Still blocked on Aadit:
+1. PayPal sandbox app credentials (developer.paypal.com login).
+2. A Groq or Gemini API key for the real LLM. Local rules are used until then.
+3. Email magic links would need an email provider. Capability links are used for now.
+4. Record the demo video and submit on Devpost.
