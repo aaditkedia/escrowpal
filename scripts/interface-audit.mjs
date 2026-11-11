@@ -1,3 +1,4 @@
+const baseURL = process.env.ESCROWPAL_BASE_URL || 'http://127.0.0.1:4173';
 import { chromium } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 import { mkdir,writeFile } from 'node:fs/promises';
@@ -8,17 +9,17 @@ const errors=[];page.on('pageerror',e=>errors.push(e.message));
 const report={pages:[],errors};
 try{
  for(const width of [1440,768,375]){
-  await page.setViewportSize({width,height:1000});await page.goto('http://127.0.0.1:4173');await page.evaluate(()=>document.fonts.ready);
+  await page.setViewportSize({width,height:1000});await page.goto(baseURL);await page.evaluate(()=>document.fonts.ready);
   const axe=await new AxeBuilder({page}).withTags(['wcag2a','wcag2aa','wcag21aa']).analyze();
   report.pages.push({page:'landing',width,overflow:await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),violations:axe.violations.map(v=>({id:v.id,impact:v.impact,count:v.nodes.length,examples:v.nodes.slice(0,8).map(n=>({target:n.target,summary:n.failureSummary}))}))});
   await page.screenshot({path:out+'/landing-'+width+'.png',fullPage:true});
  }
- await page.setViewportSize({width:1440,height:1000});await page.goto('http://127.0.0.1:4173/new');
+ await page.setViewportSize({width:1440,height:1000});await page.goto(baseURL+'/new');
  await page.getByRole('button',{name:/Use the fictional bakery/}).click();
  await page.screenshot({path:out+'/new-agreement.png',fullPage:true});
  const newAxe=await new AxeBuilder({page}).withTags(['wcag2a','wcag2aa','wcag21aa']).analyze();
  report.pages.push({page:'new',width:1440,overflow:await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),violations:newAxe.violations.map(v=>({id:v.id,impact:v.impact,count:v.nodes.length,examples:v.nodes.slice(0,8).map(n=>({target:n.target,summary:n.failureSummary}))}))});
- await page.goto('http://127.0.0.1:4173');await page.getByRole('button',{name:'Explore the live demo'}).click();await page.getByRole('heading',{name:'Sweet Crumb · website launch'}).waitFor();
+ await page.goto(baseURL);await page.getByRole('button',{name:'Explore the live demo'}).click();await page.getByRole('heading',{name:'Sweet Crumb · website launch'}).waitFor();
  for(const width of [1440,768,375]){
   await page.setViewportSize({width,height:1000});const axe=await new AxeBuilder({page}).withTags(['wcag2a','wcag2aa','wcag21aa']).analyze();
   report.pages.push({page:'room',width,overflow:await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),violations:axe.violations.map(v=>({id:v.id,impact:v.impact,count:v.nodes.length,examples:v.nodes.slice(0,8).map(n=>({target:n.target,summary:n.failureSummary}))}))});
