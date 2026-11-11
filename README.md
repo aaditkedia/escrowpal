@@ -77,11 +77,15 @@ For an intended hosted database, set DATABASE_URL in .env.local, then run npm ru
 
 ## Verification record
 
-Before local Laya execution was disabled, 71 logic/database/API tests passed. They cover payment state, market validation, stable option parsing, manual-override rules, immutable analysis receipts, and PayPal order metadata. A real Laya market-choice canary also completed before the stop request.
+The November 10, 2026 verification passed all 71 logic/database/API tests, frontend/API and local-server type checks, lint, and the production build. Model and PayPal responses in the unit/API suite were mocked; no live model ran.
 
-After the final changes, frontend/API type checks, lint, and the production build passed. No further model tests, training, or local inference were run after the owner requested stopping.
+The production-client browser run passed 15 existing workflow checks and 13 market checks, plus the interface audit and a real server-restart persistence check. It used separate buyer/seller sessions, the actual RPC handler and an isolated persistent database. It covered simulated funding, delivery, revision, disputes, settlement, access failures, missing evidence, outage recovery, PDF export and receipt digests. Automated scans found no axe violations on the tested screens and no horizontal document overflow at the tested widths. This is scoped automated evidence, not an accessibility certification.
 
-See VERIFICATION.md, submission/DEVPOST_DRAFT.md, and submission/CLAIMS.md. The new narrated walkthrough covers the market brief, saved Laya comparison, pilot agreement, simulated authorization, and exports. [YouTube demo](https://youtu.be/36SAwZgmN_c)
+Run `npm run test:e2e` after provisioning Playwright Chromium. See [docs/TESTING.md](docs/TESTING.md) for setup, coverage and external boundaries, and [verification/e2e-2026-11-10.json](verification/e2e-2026-11-10.json) for the saved result. The runner clears model/payment settings, never prepares weights, and leaves the normal application database untouched.
+
+A real Laya market-choice canary completed before the earlier stop request. No further live model inference or training was performed. A credential-backed PayPal sandbox transaction remains unverified.
+
+See VERIFICATION.md, submission/DEVPOST_DRAFT.md, and submission/CLAIMS.md. The narrated walkthrough covers the market brief, saved Laya comparison, pilot agreement, simulated authorization, and exports. [YouTube demo](https://youtu.be/36SAwZgmN_c)
 
 ## Limits
 

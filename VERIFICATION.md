@@ -1,3 +1,25 @@
+# Latest verification — November 10, 2026
+
+A clean anonymous clone of the public `submission/laya-market` branch was tested in a separate Debian checkout. The original working baseline was preserved.
+
+- 71 logic/database/API tests passed; model and payment responses were mocked.
+- Frontend, API and local-server type checks, lint and production build passed.
+- Production-client browser run: 15 existing workflow checks and 13 market checks passed, with the real RPC handler and isolated persistent PGlite.
+- Separate seller/buyer contexts exercised signature, simulated funding, delivery attachment download, dispute acceptance, capture and zero-percent settlement.
+- PDF exports and SHA-256 analysis/evidence receipts verified; role keys were absent from receipts.
+- Invalid private links, wrong-role actions, pre-signature funding, replay, missing evidence, disabled Laya and injected outage recovery were exercised.
+- Axe scans reported zero violations on the tested market screens; 320/360/768/1280px reflow passed. The existing seven-view interface audit passed.
+- A real server restart preserved an ordinary agreement, completed market ledger and sealed analysis digest.
+- Production dependency audit: zero reported vulnerabilities. The install reports four moderate development-only advisories; no forced dependency upgrades were applied.
+
+No live model was loaded or benchmarked. No payment network call was made by the browser suite. A credential-backed PayPal sandbox checkout/authorization/capture/void, hosted deployment and a full manual accessibility review remain unverified.
+
+Reproduction and skipped coverage: [docs/TESTING.md](docs/TESTING.md). Machine-readable result: [verification/e2e-2026-11-10.json](verification/e2e-2026-11-10.json).
+
+---
+
+## Earlier delivery record
+
 # EscrowPal 4 — verification and execution boundary
 
 ## Completed before model execution was stopped

@@ -1,0 +1,243 @@
+{
+  "project": "EscrowPal",
+  "dateLocal": "2026-11-10",
+  "timezone": "America/New_York",
+  "baselineCommit": "558a60ec57959fd995bf3928b0870765db0e8925",
+  "sourceBranch": "submission/laya-market",
+  "environment": {
+    "os": "Debian 13 guest",
+    "node": "v24.22.0",
+    "browser": "Playwright Chromium",
+    "clientBuild": "production",
+    "database": "isolated persistent PGlite"
+  },
+  "unitApiTests": {
+    "passed": 71,
+    "files": 7,
+    "modelResponses": "mocked",
+    "paymentResponses": "mocked"
+  },
+  "typecheck": true,
+  "lint": true,
+  "productionBuild": true,
+  "e2e": {
+    "startedAt": "2026-11-11T02:14:57.097Z",
+    "baseURL": "http://127.0.0.1:37823",
+    "clientBuild": "production",
+    "database": "isolated persistent PGlite",
+    "modelLoaded": false,
+    "paypalNetworkTested": false,
+    "checks": [
+      "browser-check.mjs passed",
+      "market-check.mjs passed",
+      "interface-audit.mjs passed",
+      "Agreement, completed market ledger, and sealed analysis survive process restart"
+    ],
+    "passed": true,
+    "finishedAt": "2026-11-11T02:15:31.516Z"
+  },
+  "legacyWorkflow": {
+    "passed": true,
+    "checks": [
+      "Confirmation shows exact split, contains keyboard focus, and Escape cancels without settlement",
+      "Buyer requests changes without releasing the hold",
+      "Seller submits delivery and attachment, with the actual review engine identified",
+      "Buyer explicitly settles the first milestone",
+      "Both positions produce a versioned, non-binding advisory proposal",
+      "One acceptance leaves the authorization unsettled",
+      "Both parties accepting the same proposal finalizes the simulated split",
+      "All three milestones can complete through the real interface",
+      "Agreement PDF downloads successfully",
+      "Evidence receipt digest verifies and includes the completed ledger",
+      "Editable plan fits 375px",
+      "Editable plan fits 768px",
+      "Editable plan fits 1440px",
+      "Creation requires reviewed terms and produces a private seller invitation",
+      "Seller explicitly signs before funding is offered"
+    ]
+  },
+  "marketWorkflow": {
+    "passed": true,
+    "checks": [
+      "brief: axe scan and 320/360/768/1280px reflow",
+      "Recorded example persists on reload and exports a verifiable receipt without its private key",
+      "analysis: axe scan and 320/360/768/1280px reflow",
+      "Changed selection resets consent; a reviewed override binds the exact-cent pilot to the original digest",
+      "Invalid role keys and funding before seller acceptance are rejected by the real API",
+      "Separate seller session signs, submits three deliveries and a downloadable attachment; only the buyer settles",
+      "A disputed milestone needs both acceptances; an explicit zero-percent settlement closes the remaining hold",
+      "completed-pilot: axe scan and 320/360/768/1280px reflow",
+      "Completed pilot exports a PDF and sealed full ledger without role keys, and rejects settlement replay",
+      "Disabled Laya produces no recommendation and requires an explained, reviewed manual choice",
+      "Missing evidence blocks pilot creation even after manual selection and acknowledgement",
+      "Private analysis and agreement routes render visible access errors for invalid keys",
+      "An injected API outage displays a useful error and recovers when the user retries"
+    ],
+    "probes": [
+      {
+        "route": "brief",
+        "theme": "single light theme",
+        "axeViolations": [],
+        "incomplete": [],
+        "overflow": [
+          {
+            "width": 320,
+            "scrollWidth": 320,
+            "viewportWidth": 320
+          },
+          {
+            "width": 360,
+            "scrollWidth": 360,
+            "viewportWidth": 360
+          },
+          {
+            "width": 768,
+            "scrollWidth": 768,
+            "viewportWidth": 768
+          },
+          {
+            "width": 1280,
+            "scrollWidth": 1280,
+            "viewportWidth": 1280
+          }
+        ]
+      },
+      {
+        "route": "analysis",
+        "theme": "single light theme",
+        "axeViolations": [],
+        "incomplete": [],
+        "overflow": [
+          {
+            "width": 320,
+            "scrollWidth": 320,
+            "viewportWidth": 320
+          },
+          {
+            "width": 360,
+            "scrollWidth": 360,
+            "viewportWidth": 360
+          },
+          {
+            "width": 768,
+            "scrollWidth": 768,
+            "viewportWidth": 768
+          },
+          {
+            "width": 1280,
+            "scrollWidth": 1280,
+            "viewportWidth": 1280
+          }
+        ]
+      },
+      {
+        "route": "completed-pilot",
+        "theme": "single light theme",
+        "axeViolations": [],
+        "incomplete": [
+          "aria-prohibited-attr",
+          "color-contrast"
+        ],
+        "overflow": [
+          {
+            "width": 320,
+            "scrollWidth": 320,
+            "viewportWidth": 320
+          },
+          {
+            "width": 360,
+            "scrollWidth": 360,
+            "viewportWidth": 360
+          },
+          {
+            "width": 768,
+            "scrollWidth": 768,
+            "viewportWidth": 768
+          },
+          {
+            "width": 1280,
+            "scrollWidth": 1280,
+            "viewportWidth": 1280
+          }
+        ]
+      }
+    ],
+    "pageErrors": [],
+    "unexpectedStatuses": [],
+    "unexpectedFailedRequests": [],
+    "externalRequests": [],
+    "injectedFailure": {
+      "status": 503,
+      "visibleError": true,
+      "retryRecovered": true
+    }
+  },
+  "interfaceAudit": {
+    "pages": [
+      {
+        "page": "landing",
+        "width": 1440,
+        "overflow": false,
+        "violations": []
+      },
+      {
+        "page": "landing",
+        "width": 768,
+        "overflow": false,
+        "violations": []
+      },
+      {
+        "page": "landing",
+        "width": 375,
+        "overflow": false,
+        "violations": []
+      },
+      {
+        "page": "new",
+        "width": 1440,
+        "overflow": false,
+        "violations": []
+      },
+      {
+        "page": "room",
+        "width": 1440,
+        "overflow": false,
+        "violations": []
+      },
+      {
+        "page": "room",
+        "width": 768,
+        "overflow": false,
+        "violations": []
+      },
+      {
+        "page": "room",
+        "width": 375,
+        "overflow": false,
+        "violations": []
+      }
+    ],
+    "errors": []
+  },
+  "productionDependencyVulnerabilities": 0,
+  "modelLoaded": false,
+  "liveInferenceRun": false,
+  "paymentScope": "Explicit simulated holds in browser; mocked PayPal responses in unit/API tests. Credential-backed sandbox transaction unverified.",
+  "skipped": [
+    "Live model inference and accuracy benchmark per owner restriction",
+    "Credential-backed PayPal sandbox checkout/authorization/capture/void",
+    "Hosted Neon/Vercel deployment",
+    "Other browser engines",
+    "Performance budgets and attributed web vitals",
+    "Full keyboard traversal, target-size audit, expanded translations and manual accessibility certification"
+  ],
+  "codeSha256": {
+    "scripts/dev-server.ts": "6d4737c2308d6d263c3ac681ea21ba8751fab1d132fba6f48537d3c82b31bf70",
+    "scripts/browser-check.mjs": "8c04402f3211e59720cb3259841e9aa42abb32cce67dd2f165856ebaa15da49f",
+    "scripts/interface-audit.mjs": "78be413cf61adbf139fe7b4be64223ff16ccafded1d80ed4e530c8aae7efb99e",
+    "scripts/e2e.mjs": "41012c0c968bf825355c1e50fe55beacd87023e74edc1de07767bb9007efe35b",
+    "scripts/market-check.mjs": "def1b8b957c467f51252c4b3ebbaac2182458ccf32b6df72f31498849c5a13de",
+    "package.json": "b51e14216d2e044bc7c35abbf5bb8fd8501333dd7507021d4874525c6945b6c5",
+    "tsconfig.api.json": "b975bdcee246ece9c530164d5469ec6009d5e3585aa8c1827fb4da6f0e0a0061"
+  }
+}
