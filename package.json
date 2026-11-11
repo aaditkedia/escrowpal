@@ -16,7 +16,9 @@
     "audit:ui": "node scripts/interface-audit.mjs",
     "db:migrate": "node --env-file=.env.local ./node_modules/drizzle-kit/bin.cjs migrate",
     "laya:prepare": "npm ci --ignore-scripts --prefix services/laya && npm run model:prepare --prefix services/laya",
-    "laya:start": "npm start --prefix services/laya"
+    "laya:start": "npm start --prefix services/laya",
+    "test:e2e": "npm run build && node scripts/e2e.mjs",
+    "test:market-browser": "node scripts/market-check.mjs"
   },
   "dependencies": {
     "@electric-sql/pglite": "^0.5.16",
