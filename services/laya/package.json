@@ -1,0 +1,16 @@
+{
+  "name": "escrowpal-laya-runtime",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "model:prepare": "node prepare.mjs",
+    "start": "node server.mjs"
+  },
+  "dependencies": {
+    "@receptron/laya": "0.1.2"
+  },
+  "engines": {
+    "node": ">=22.12.0"
+  }
+}

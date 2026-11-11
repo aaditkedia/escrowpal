@@ -1,0 +1,53 @@
+
+> escrowpal@3.0.0 check
+> npm run typecheck && npm test && npm run build
+
+
+> escrowpal@3.0.0 typecheck
+> tsc -b && tsc -p tsconfig.api.json
+
+
+> escrowpal@3.0.0 test
+> vitest run --maxWorkers=1
+
+
+[1m[30m[46m RUN [49m[39m[22m [36mv5.1.0 [39m[90m/home/studio/Projects/escrowpal-20261109/work[39m
+
+ [32m✓[39m tests/api.test.ts [2m([22m[2m19 tests[22m[2m)[22m[33m 2559[2mms[22m[39m
+ [32m✓[39m tests/paypal.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 35[2mms[22m[39m
+ [32m✓[39m tests/agent-service.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 11[2mms[22m[39m
+ [32m✓[39m tests/validation.test.ts [2m([22m[2m15 tests[22m[2m)[22m[32m 8[2mms[22m[39m
+ [32m✓[39m tests/agent.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m5 passed[39m[22m[90m (5)[39m
+[2m      Tests [22m [1m[32m52 passed[39m[22m[90m (52)[39m
+[2m   Start at [22m 04:36:36
+[2m   Duration [22m 3.52s[2m (tests 87%, import 11%, transform 1%, worker 1%)[22m
+
+[2m    Isolate [22m [33m5 workers spawned[39m[2m · ~96ms startup each (spawn + environment, per file)[22m
+[2m            [22m [2mat least ~384ms faster with [22m[33misolate: false[39m[2m — reuses workers across files instead of one per file[22m
+
+
+> escrowpal@3.0.0 build
+> tsc -b && vite build
+
+vite v8.3.5 building client environment for production...
+transforming...
+✓ 2394 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                             0.78 kB │ gzip:   0.47 kB
+dist/assets/index-B6tJ7IiC.css             46.94 kB │ gzip:  10.18 kB
+dist/assets/copy-DkZE7m2d.js                0.26 kB │ gzip:   0.22 kB
+dist/assets/rolldown-runtime-WkwZ5CU-.js    0.59 kB │ gzip:   0.36 kB
+dist/assets/Dashboard-w6nxAelP.js           4.03 kB │ gzip:   1.68 kB
+dist/assets/browser-COyxp469.js            23.46 kB │ gzip:   8.86 kB
+dist/assets/purify.es-Dqk5qvad.js          29.02 kB │ gzip:  11.45 kB
+dist/assets/DealRoom-BKxXuji7.js           29.06 kB │ gzip:   9.45 kB
+dist/assets/NewDeal-eW0szWX_.js            98.09 kB │ gzip:  29.16 kB
+dist/assets/index.es-5caHh1LO.js          151.42 kB │ gzip:  48.91 kB
+dist/assets/html2canvas-zRALU_B7.js       199.40 kB │ gzip:  46.74 kB
+dist/assets/index-BRj41ifK.js             241.95 kB │ gzip:  76.31 kB
+dist/assets/contract-JfErNFU3.js          401.96 kB │ gzip: 131.16 kB
+
+✓ built in 572ms

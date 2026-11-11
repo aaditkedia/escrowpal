@@ -1,34 +1,50 @@
 {
   "name": "escrowpal",
   "private": true,
-  "version": "0.0.0",
+  "version": "4.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "node --import tsx scripts/dev-server.ts",
     "build": "tsc -b && vite build",
     "lint": "oxlint",
     "preview": "vite preview",
-    "test": "vitest run"
+    "test": "vitest run --maxWorkers=1",
+    "typecheck": "tsc -b && tsc -p tsconfig.api.json",
+    "test:api": "vitest run tests/api.test.ts --maxWorkers=1",
+    "check": "npm run typecheck && npm test && npm run build",
+    "test:browser": "node scripts/browser-check.mjs",
+    "audit:ui": "node scripts/interface-audit.mjs",
+    "db:migrate": "node --env-file=.env.local ./node_modules/drizzle-kit/bin.cjs migrate",
+    "laya:prepare": "npm ci --ignore-scripts --prefix services/laya && npm run model:prepare --prefix services/laya",
+    "laya:start": "npm start --prefix services/laya"
   },
   "dependencies": {
+    "@electric-sql/pglite": "^0.5.16",
     "@neondatabase/serverless": "^1.2.0",
     "drizzle-orm": "^0.45.4",
     "jspdf": "^4.2.1",
+    "lucide-react": "^1.70.0",
     "qrcode": "^1.5.4",
     "react": "^19.3.1",
-    "react-dom": "^19.3.1"
+    "react-dom": "^19.3.1",
+    "zod": "^4.6.7"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.14.0",
+    "@playwright/test": "^1.65.0",
     "@types/node": "^24.19.2",
     "@types/qrcode": "^1.5.6",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
-    "@vercel/node": "^29.0.1",
     "@vitejs/plugin-react": "^6.1.2",
     "drizzle-kit": "^0.31.11",
     "oxlint": "^1.89.0",
+    "tsx": "^4.23.15",
     "typescript": "~7.0.2",
     "vite": "^8.3.5",
     "vitest": "^5.1.0"
+  },
+  "engines": {
+    "node": ">=22.12.0"
   }
 }

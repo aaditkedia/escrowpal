@@ -69,13 +69,13 @@ export function localJudge(title: string, criteria: Criteria, evidence: string, 
   const pct = Math.round((met.length / Math.max(1, criteria.length)) * 100);
   const recommendation = injectionFlag ? 'revise' : pct === 100 ? 'release' : pct >= 50 ? 'partial' : 'revise';
   return { met, missing, injectionFlag, releasePct: recommendation === 'release' ? 100 : recommendation === 'partial' ? pct : 0, recommendation,
-    reasoning: (injectionFlag ? 'Evidence contains instructions aimed at the reviewer; ignored and flagged for the buyer. ' : '') + `${met.length}/${criteria.length} acceptance criteria satisfied.` + (missing.length ? ` Missing: ${missing.join('; ')}.` : ''), engine: 'local rules' };
+    reasoning: (injectionFlag ? 'Evidence contains instructions aimed at the reviewer; ignored and flagged for the buyer. ' : '') + `${met.length}/${criteria.length} written claims addressed by a keyword check. Files and links were not verified.` + (missing.length ? ` Missing: ${missing.join('; ')}.` : ''), engine: 'local rules' };
 }
 
 export function localMediate(m: { title: string; criteria: Criteria }, verdict: Verdict | null, reason: string, sellerResp: string): Mediation {
   const base = verdict ? verdict.met.length / Math.max(1, m.criteria.length) : 0.5;
   const pct = Math.max(0, Math.min(100, Math.round(base * 100 / 10) * 10));
-  return { summary: `Dispute over "${m.title}". The AI review found ${verdict ? `${verdict.met.length}/${m.criteria.length}` : 'unknown'} criteria met.`,
+  return { summary: `Dispute over "${m.title}". The AI review found ${verdict ? `${verdict.met.length}/${m.criteria.length}` : 'unknown'} written claims addressed. File contents and links were not inspected.`,
     buyerPosition: reason || '(none given)', sellerPosition: sellerResp || '(seller has not responded yet)', proposedReleasePct: pct,
-    rationale: `Pay for the share of acceptance criteria evidenced (${pct}%) and refund the rest. Either party can reject, and the hold stays until both accept.`, engine: 'local rules' };
+    rationale: `Suggested capture based on the share of claims addressed (${pct}%) and leave the rest uncaptured. Either party can reject; settlement requires both participants to accept. Authorization expiry still applies.`, engine: 'local rules' };
 }

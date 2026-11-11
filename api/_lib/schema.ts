@@ -33,3 +33,10 @@ export const events = pgTable('events', {
   id: serial('id').primaryKey(), dealId: text('deal_id').notNull().references(() => deals.id, { onDelete: 'cascade' }),
   role: text('role').notNull(), kind: text('kind').notNull(), message: text('message').notNull(), createdAt: timestamp('created_at').defaultNow().notNull(),
 });
+
+export const marketAnalyses = pgTable('market_analyses', {
+  id: text('id').primaryKey(), accessToken: text('access_token').notNull(),
+  input: jsonb('input').notNull(), result: jsonb('result').notNull(), digest: text('digest').notNull(),
+  selectedId: text('selected_option_id'), status: text('status').notNull().default('ready'), dealId: text('deal_id').references(() => deals.id),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+});

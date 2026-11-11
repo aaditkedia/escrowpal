@@ -1,0 +1,10 @@
+{
+  "version": "3.0.0",
+  "sourceArchive": "EscrowPal-PayPal-Hackathon.zip",
+  "sourceSha256": "a9378d255fb70b25970fe44820431812f4317c5a0b6de2a281878c270eac881e",
+  "videoSha256": "bdbd990ab0bb78759ce73447922281355baa8156dd11cff164407fd2831e121a",
+  "videoSeconds": 148.090667,
+  "localOnly": true,
+  "submitted": false,
+  "paypalCredentialBackedTransactionVerified": false
+}

@@ -1,0 +1,23 @@
+
+> escrowpal@4.0.0 test
+> vitest run --maxWorkers=1
+
+
+[1m[30m[46m RUN [49m[39m[22m [36mv5.1.0 [39m[90m/home/studio/Projects/escrowpal-20261109/work[39m
+
+ [32m✓[39m tests/api.test.ts [2m([22m[2m24 tests[22m[2m)[22m[33m 2724[2mms[22m[39m
+ [32m✓[39m tests/paypal.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 40[2mms[22m[39m
+ [32m✓[39m tests/laya.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 30[2mms[22m[39m
+ [32m✓[39m tests/agent-service.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 11[2mms[22m[39m
+ [32m✓[39m tests/market.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 10[2mms[22m[39m
+ [32m✓[39m tests/validation.test.ts [2m([22m[2m15 tests[22m[2m)[22m[32m 10[2mms[22m[39m
+ [32m✓[39m tests/agent.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m7 passed[39m[22m[90m (7)[39m
+[2m      Tests [22m [1m[32m71 passed[39m[22m[90m (71)[39m
+[2m   Start at [22m 05:30:30
+[2m   Duration [22m 4.21s[2m (tests 82%, import 16%, transform 1%, worker 1%)[22m
+
+[2m    Isolate [22m [33m7 workers spawned[39m[2m · ~99ms startup each (spawn + environment, per file)[22m
+[2m            [22m [2mat least ~592ms faster with [22m[33misolate: false[39m[2m — reuses workers across files instead of one per file[22m
+

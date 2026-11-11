@@ -1,17 +1,17 @@
+import { go } from '../navigation';
 import { useEffect, useState } from 'react';
-import { Nav, Link } from '../Router';
-import { rpc, saved, money } from '../api';
+import { ArrowUpRight, FolderOpen, Plus, Search } from 'lucide-react';
+import { Footer, Nav, Link } from '../Router';
+import { createDemo, errorText, rpc, saved, money, type Saved, type View } from '../api';
 export function Dashboard() {
-  const [rows, setRows] = useState<any[]>([]);
-  useEffect(() => { Promise.all(saved().map(s => rpc('get', { id: s.id, k: s.k }).then(v => ({ s, v })).catch(() => ({ s, v: null })))).then(setRows); }, []);
-  return <><div className="bar"><Nav /></div><main className="page">
-    <h1 className="display small">My deals</h1>
-    <p className="muted">Deals are opened with private links, so no password is needed. This device remembers the links you created or opened.</p>
-    {!saved().length && <p>No deals yet. <Link to="/new">Create one →</Link></p>}
-    <div className="deal-list">{rows.map(({ s, v }) => <Link key={s.id + s.role} to={`/d/${s.id}?k=${s.k}`} className="deal-row">
-      <div><b>{s.title}</b><small>{s.role === 'buyer' ? 'You are the buyer' : 'You are the seller'}</small></div>
-      {v ? <><span className={`status ${v.deal.status}`}>{v.deal.status.replace('_', ' ')}</span><span>{money(v.deal.total)}</span>
-        <span>{v.milestones.filter((m: any) => m.status === 'released').length}/{v.milestones.length} released</span></> : <span className="muted">unavailable</span>}
-    </Link>)}</div>
-  </main></>;
+  const [rows, setRows] = useState<{ s: Saved; v: View | null }[]>([]); const [loading, setLoading] = useState(true); const [search, setSearch] = useState(''); const [busy, setBusy] = useState(false); const [err, setErr] = useState('');
+  useEffect(() => { let live = true; Promise.all(saved().map(s => rpc('get', { id: s.id, k: s.k }).then(v => ({ s, v })).catch(() => ({ s, v: null })))).then(r => { if (live) { setRows(r); setLoading(false); } }); return () => { live = false; }; }, []);
+  const unique = [...new Map(rows.filter(r => r.v).map(r => [r.s.id, r.v!])).values()];
+  const shown = rows.filter(r => r.s.title.toLowerCase().includes(search.toLowerCase()));
+  return <><Nav /><main id="main" className="shell page" tabIndex={-1}>
+    <div className="page-heading"><div><p className="eyebrow">Your workspace</p><h1>A little more <em>organized.</em></h1><p className="muted">Private deal links opened on this browser. Keep these links somewhere safe.</p></div><Link to="/new" className="btn btn-dark"><Plus size={17} /> New agreement</Link></div>
+    {rows.length > 0 && <><div className="workspace-stats"><div><span>Agreements on this device</span><b>{unique.length}</b></div><div><span>Active agreements</span><b>{unique.filter(v => v.deal.status === 'active').length}</b></div><div><span>Submitted for review</span><b>{unique.reduce((n, v) => n + v.milestones.filter(m => m.status === 'submitted').length, 0)}</b></div></div><label className="search-field"><Search size={18} /><input aria-label="Search your deals" value={search} onChange={e => setSearch(e.target.value)} placeholder="Find an agreement…" /></label></>}
+    {loading ? <p role="status" className="empty-state">Loading your agreements…</p> : !rows.length ? <section className="empty-state card"><FolderOpen size={36} /><h2>Your next great collaboration starts here.</h2><p>Create an agreement, or explore both roles in the fictional bakery demo.</p><div className="actions"><Link to="/new" className="btn">Create an agreement</Link><button className="btn-outline" disabled={busy} onClick={async () => { setBusy(true); try { go(await createDemo()); } catch(e) { setErr(errorText(e)); setBusy(false); } }}>{busy ? 'Preparing…' : 'Try the sample'}</button></div></section> : <div className="deal-list">{shown.map(({s, v}) => <Link key={s.id+s.role} to={'/d/'+s.id+'?k='+s.k} className="deal-row"><span className="deal-icon"><FolderOpen size={23} /></span><div className="deal-row-title"><b>{s.title}</b><small>{s.role === 'buyer' ? 'Buyer workspace' : 'Seller workspace'}{v?.deal.demo || s.demo ? ' · Demo ledger' : ''}</small></div><span className="tag neutral">{v ? v.deal.status.replaceAll('_',' ') : 'Unavailable'}</span><span className="deal-row-total">{v ? money(v.deal.total) : '—'}</span><ArrowUpRight size={21} /></Link>)}{!shown.length && <p className="empty-state">No agreements match that search.</p>}</div>}
+    {err && <p role="alert" className="error">{err}</p>}<p className="privacy-note">Your private links act as access keys. Clearing browser storage removes this list, not the agreements.</p>
+  </main><Footer /></>;
 }

@@ -1,0 +1,44 @@
+{
+  "elapsedSeconds": 41.288,
+  "result": {
+    "title": "Bakery Website Project Milestones",
+    "total": 1200,
+    "milestones": [
+      {
+        "title": "Homepage and Menu Mockup Approval",
+        "amount": 400,
+        "criteria": [
+          "Deliver high-fidelity mockups for homepage and menu pages.",
+          "Client confirms visual design direction and content placement.",
+          "All assets are organized in the agreed-upon file repository."
+        ],
+        "dueInDays": 7
+      },
+      {
+        "title": "Responsive Site Build Completion",
+        "amount": 400,
+        "criteria": [
+          "Develop fully responsive HTML/CSS/JS code for all pages.",
+          "Implement functional order form with basic validation logic.",
+          "Ensure cross-browser compatibility on desktop and mobile devices."
+        ],
+        "dueInDays": 14
+      },
+      {
+        "title": "Deployment Documentation and Handoff",
+        "amount": 400,
+        "criteria": [
+          "Provide step-by-step deployment guide for hosting environment.",
+          "Conduct live walkthrough session to demonstrate site features.",
+          "Transfer all source code, assets, and documentation to client."
+        ],
+        "dueInDays": 21
+      }
+    ],
+    "risk": [
+      "Medium value: keep each milestone under ~40% of the total."
+    ],
+    "riskScore": 20,
+    "engine": "Ollama \u00b7 qwen3.5:9b"
+  }
+}

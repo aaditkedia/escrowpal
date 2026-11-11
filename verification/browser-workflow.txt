@@ -1,0 +1,16 @@
+PASS Confirmation shows exact split, contains keyboard focus, and Escape cancels without settlement
+PASS Buyer requests changes without releasing the hold
+PASS Seller submits delivery and attachment, with the actual review engine identified
+PASS Buyer explicitly settles the first milestone
+PASS Both positions produce a versioned, non-binding advisory proposal
+PASS One acceptance leaves the authorization unsettled
+PASS Both parties accepting the same proposal finalizes the simulated split
+PASS All three milestones can complete through the real interface
+PASS Agreement PDF downloads successfully
+PASS Evidence receipt digest verifies and includes the completed ledger
+PASS Editable plan fits 375px
+PASS Editable plan fits 768px
+PASS Editable plan fits 1440px
+PASS Creation requires reviewed terms and produces a private seller invitation
+PASS Seller explicitly signs before funding is offered
+{"passed":true,"checks":15,"models":[{"action":"review","engine":"Ollama · qwen3.5:9b","elapsedSeconds":27.459},{"action":"mediation","engine":"Ollama · qwen3.5:9b","elapsedSeconds":18.17},{"action":"planning","engine":"Ollama · qwen3.5:9b","elapsedSeconds":27.778}]}

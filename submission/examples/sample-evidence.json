@@ -1,0 +1,317 @@
+{
+  "payload": {
+    "schema": "escrowpal.evidence.v1",
+    "exportedAt": "2026-11-10T04:22:26.092Z",
+    "scope": "Sandbox prototype; digest checks export integrity, not proof that claims are true.",
+    "deal": {
+      "id": "sMuz9jon",
+      "title": "Sweet Crumb · website launch",
+      "description": "Fictional sample: $1,200 bakery website. First a homepage mockup; then a responsive site; finally deployment. Due in 3 weeks.",
+      "total": 1200,
+      "currency": "USD",
+      "status": "completed",
+      "buyerName": "Maya · sample buyer",
+      "buyerEmail": null,
+      "sellerName": "Alex · sample designer",
+      "sellerEmail": null,
+      "buyerSignedAt": "2026-11-10T04:21:20.410Z",
+      "sellerSignedAt": "2026-11-10T04:21:20.426Z",
+      "inspectionDays": 3,
+      "riskScore": 20,
+      "risk": [
+        "Medium value: keep each milestone under ~40% of the total."
+      ],
+      "engine": "guided-demo",
+      "createdAt": "2026-11-10T04:21:20.411Z",
+      "demo": true
+    },
+    "milestones": [
+      {
+        "id": "F0JLuBaSiC0",
+        "dealId": "sMuz9jon",
+        "idx": 0,
+        "title": "Direction & design",
+        "amount": 300,
+        "criteria": [
+          "Homepage and menu mockup described",
+          "Mobile layout described",
+          "Design review link provided"
+        ],
+        "dueDate": "2026-11-17",
+        "status": "released",
+        "authId": "MOCK-HNTLzY6oOOU",
+        "orderId": null,
+        "captureId": null,
+        "releasedAmount": 300,
+        "submittedAt": "2026-11-10T04:21:49.457Z",
+        "verdict": {
+          "met": [
+            "Homepage and menu mockup described",
+            "Mobile layout described"
+          ],
+          "engine": "Ollama · qwen3.5:9b",
+          "missing": [
+            "Design review link provided"
+          ],
+          "reasoning": "The delivery claims state that the homepage/menu mockup is outlined (met) and mobile layout is described (met). However, the claim explicitly states the design review link is 'still missing' in one instance, while another instance lists it as provided but immediately follows with a warning to inspect independently. Given the explicit statement of missingness in the primary narrative of the claims, the criterion 'Design review link provided' cannot be fully met as a delivered fact without external verification, which is prohibited. Therefore, 2 out of 3 criteria are substantiated by the text.",
+          "releasePct": 66,
+          "injectionFlag": false,
+          "recommendation": "partial"
+        },
+        "reviewDue": "2026-11-13T04:21:49.457Z",
+        "reviewOverdue": false
+      },
+      {
+        "id": "_kGrahV2A60",
+        "dealId": "sMuz9jon",
+        "idx": 1,
+        "title": "Build & handoff",
+        "amount": 600,
+        "criteria": [
+          "Responsive site implementation described",
+          "Order form described",
+          "Repository link provided"
+        ],
+        "dueDate": "2026-11-24",
+        "status": "released",
+        "authId": "MOCK-wNBmNnATZX4",
+        "orderId": null,
+        "captureId": null,
+        "releasedAmount": 300,
+        "submittedAt": null,
+        "verdict": null,
+        "reviewDue": null,
+        "reviewOverdue": false
+      },
+      {
+        "id": "dprhrabQoa0",
+        "dealId": "sMuz9jon",
+        "idx": 2,
+        "title": "Launch & walkthrough",
+        "amount": 300,
+        "criteria": [
+          "Deployment steps documented",
+          "Custom domain setup described",
+          "Handoff walkthrough provided"
+        ],
+        "dueDate": "2026-12-01",
+        "status": "released",
+        "authId": "MOCK-49oQbY8kciQ",
+        "orderId": null,
+        "captureId": null,
+        "releasedAmount": 300,
+        "submittedAt": "2026-11-10T04:22:25.461Z",
+        "verdict": {
+          "met": [
+            "Deployment steps documented",
+            "Custom domain setup described",
+            "Handoff walkthrough provided"
+          ],
+          "engine": "Ollama · qwen3.5:9b",
+          "missing": [],
+          "reasoning": "The delivery claims explicitly state that 'Deployment steps documented', 'Custom domain setup described', and 'Handoff walkthrough provided'. The text includes a disclaimer that the link is fictional and must be inspected independently by the buyer. Since the evaluation is strictly advisory and based on the user's untrusted text without inspecting external links or files, the claims within the text are accepted as stated for the purpose of this review.",
+          "releasePct": 100,
+          "injectionFlag": false,
+          "recommendation": "release"
+        },
+        "reviewDue": "2026-11-13T04:22:25.461Z",
+        "reviewOverdue": false
+      }
+    ],
+    "evidence": [
+      {
+        "id": "C-V1Ikq2SDc",
+        "milestoneId": "F0JLuBaSiC0",
+        "role": "seller",
+        "note": "Fictional delivery claim: homepage and menu mockup outlined. Mobile layout and design review link are still missing.",
+        "fileName": null,
+        "fileType": null,
+        "fileSize": null,
+        "createdAt": "2026-11-10T04:21:20.491Z"
+      },
+      {
+        "id": "2ffnPstKBEI",
+        "milestoneId": "F0JLuBaSiC0",
+        "role": "seller",
+        "note": "Fictional sample delivery claims: Homepage and menu mockup described; Mobile layout described; Design review link provided. Review link for this fictional demo: https://example.com/design-review. The buyer must inspect the actual work independently.",
+        "fileName": "fictional-proof.txt",
+        "fileType": "text/plain",
+        "fileSize": 75,
+        "createdAt": "2026-11-10T04:21:22.091Z"
+      },
+      {
+        "id": "PwpMMxIuWcs",
+        "milestoneId": "dprhrabQoa0",
+        "role": "seller",
+        "note": "Fictional sample delivery claims: Deployment steps documented; Custom domain setup described; Handoff walkthrough provided. Review link for this fictional demo: https://example.com/design-review. The buyer must inspect the actual work independently.",
+        "fileName": null,
+        "fileType": null,
+        "fileSize": null,
+        "createdAt": "2026-11-10T04:22:10.253Z"
+      }
+    ],
+    "disputes": [
+      {
+        "id": "vneCsOZbwxs",
+        "milestoneId": "_kGrahV2A60",
+        "openedBy": "buyer",
+        "reason": "Fictional disagreement: site and order form described, but the repository handoff is missing.",
+        "sellerResponse": "Fictional response: responsive site and order form are described. Repository access is not delivered yet. I suggest a partial settlement.",
+        "buyerResponse": "Fictional disagreement: site and order form described, but the repository handoff is missing.",
+        "mediator": {
+          "engine": "Ollama · qwen3.5:9b",
+          "summary": "Partial settlement proposed for 'Build & handoff' claim due to missing repository handoff evidence, acknowledging unverified file contents and fictional nature of the dispute.",
+          "rationale": "Given the explicit fictional nature of the dispute and the inability to inspect attached files or verify evidence, a 50% release is proposed. This acknowledges the seller's completion of described items (site/order form) while reserving funds for the unverified missing handoff, pending mutual acceptance of this exact proposal.",
+          "buyerPosition": "The site and order form are described but the critical repository handoff is missing; full payment is withheld until delivery.",
+          "sellerPosition": "The responsive site and order form are delivered as described; only the repository access is pending, warranting a partial settlement.",
+          "proposedReleasePct": 50
+        },
+        "resolution": "Settled by mutual acceptance: 50% captured, remainder uncaptured.",
+        "buyerAccepts": 1,
+        "sellerAccepts": 1,
+        "createdAt": "2026-11-10T04:21:50.116Z",
+        "proposalHash": "9d82d213dd8ab8a8fcf68fa6688b1380ee913e878eae9ffc420d6b22e38c3eb6"
+      }
+    ],
+    "events": [
+      {
+        "id": 73,
+        "dealId": "sMuz9jon",
+        "role": "buyer",
+        "kind": "create",
+        "message": "Buyer signed a $1200.00 plan with 3 milestones. Amounts and terms were reviewed by the buyer.",
+        "createdAt": "2026-11-10T04:21:20.418Z"
+      },
+      {
+        "id": 74,
+        "dealId": "sMuz9jon",
+        "role": "seller",
+        "kind": "sign",
+        "message": "Seller accepted the milestones. Funding is now available.",
+        "createdAt": "2026-11-10T04:21:20.428Z"
+      },
+      {
+        "id": 75,
+        "dealId": "sMuz9jon",
+        "role": "buyer",
+        "kind": "fund",
+        "message": "$300.00 authorized for \"Direction & design\" · simulated hold; no PayPal request or money movement",
+        "createdAt": "2026-11-10T04:21:20.458Z"
+      },
+      {
+        "id": 76,
+        "dealId": "sMuz9jon",
+        "role": "buyer",
+        "kind": "fund",
+        "message": "$600.00 authorized for \"Build & handoff\" · simulated hold; no PayPal request or money movement",
+        "createdAt": "2026-11-10T04:21:20.472Z"
+      },
+      {
+        "id": 77,
+        "dealId": "sMuz9jon",
+        "role": "buyer",
+        "kind": "fund",
+        "message": "$300.00 authorized for \"Launch & walkthrough\" · simulated hold; no PayPal request or money movement",
+        "createdAt": "2026-11-10T04:21:20.482Z"
+      },
+      {
+        "id": 78,
+        "dealId": "sMuz9jon",
+        "role": "seller",
+        "kind": "submit",
+        "message": "Fictional sample delivery and labelled illustrative review loaded. Re-submit evidence to run the configured reviewer.",
+        "createdAt": "2026-11-10T04:21:20.495Z"
+      },
+      {
+        "id": 79,
+        "dealId": "sMuz9jon",
+        "role": "buyer",
+        "kind": "revise",
+        "message": "Buyer requested changes: Please add mobile layouts and a review link.",
+        "createdAt": "2026-11-10T04:21:21.740Z"
+      },
+      {
+        "id": 80,
+        "dealId": "sMuz9jon",
+        "role": "seller",
+        "kind": "submit",
+        "message": "Delivery claims reviewed by Ollama · qwen3.5:9b: partial (66% advisory). Files and links were not inspected.",
+        "createdAt": "2026-11-10T04:21:49.459Z"
+      },
+      {
+        "id": 81,
+        "dealId": "sMuz9jon",
+        "role": "buyer",
+        "kind": "release",
+        "message": "Settled \"Direction & design\": $300.00 captured (100%), $0.00 left uncaptured · simulated ledger; no money moved",
+        "createdAt": "2026-11-10T04:21:49.895Z"
+      },
+      {
+        "id": 82,
+        "dealId": "sMuz9jon",
+        "role": "buyer",
+        "kind": "dispute",
+        "message": "Dispute opened. Authorization remains unchanged. Fictional disagreement: site and order form described, but the repository handoff is missing.",
+        "createdAt": "2026-11-10T04:21:50.120Z"
+      },
+      {
+        "id": 83,
+        "dealId": "sMuz9jon",
+        "role": "seller",
+        "kind": "respond",
+        "message": "Proposal updated by Ollama · qwen3.5:9b. Both parties must review and accept this revision again.",
+        "createdAt": "2026-11-10T04:22:08.463Z"
+      },
+      {
+        "id": 84,
+        "dealId": "sMuz9jon",
+        "role": "seller",
+        "kind": "accept",
+        "message": "seller explicitly accepted proposal 9d82d213dd8a.",
+        "createdAt": "2026-11-10T04:22:09.573Z"
+      },
+      {
+        "id": 85,
+        "dealId": "sMuz9jon",
+        "role": "buyer",
+        "kind": "accept",
+        "message": "buyer explicitly accepted proposal 9d82d213dd8a.",
+        "createdAt": "2026-11-10T04:22:09.926Z"
+      },
+      {
+        "id": 86,
+        "dealId": "sMuz9jon",
+        "role": "both parties",
+        "kind": "release",
+        "message": "Settled \"Build & handoff\": $300.00 captured (50%), $300.00 left uncaptured · simulated ledger; no money moved",
+        "createdAt": "2026-11-10T04:22:09.930Z"
+      },
+      {
+        "id": 87,
+        "dealId": "sMuz9jon",
+        "role": "seller",
+        "kind": "submit",
+        "message": "Delivery claims reviewed by Ollama · qwen3.5:9b: release (100% advisory). Files and links were not inspected.",
+        "createdAt": "2026-11-10T04:22:25.462Z"
+      },
+      {
+        "id": 88,
+        "dealId": "sMuz9jon",
+        "role": "buyer",
+        "kind": "release",
+        "message": "Settled \"Launch & walkthrough\": $300.00 captured (100%), $0.00 left uncaptured · simulated ledger; no money moved",
+        "createdAt": "2026-11-10T04:22:25.759Z"
+      },
+      {
+        "id": 89,
+        "dealId": "sMuz9jon",
+        "role": "system",
+        "kind": "complete",
+        "message": "All milestones are settled. No seller payout was performed.",
+        "createdAt": "2026-11-10T04:22:25.761Z"
+      }
+    ]
+  },
+  "sha256": "fabbee05dc920d54672cd5286c82b927fe9e9b99893239d85b39337062490a81",
+  "algorithm": "SHA-256"
+}

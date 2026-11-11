@@ -1,0 +1,95 @@
+{
+  "checks": [
+    "Confirmation shows exact split, contains keyboard focus, and Escape cancels without settlement",
+    "Buyer requests changes without releasing the hold",
+    "Seller submits delivery and attachment, with the actual review engine identified",
+    "Buyer explicitly settles the first milestone",
+    "Both positions produce a versioned, non-binding advisory proposal",
+    "One acceptance leaves the authorization unsettled",
+    "Both parties accepting the same proposal finalizes the simulated split",
+    "All three milestones can complete through the real interface",
+    "Agreement PDF downloads successfully",
+    "Evidence receipt digest verifies and includes the completed ledger",
+    "Editable plan fits 375px",
+    "Editable plan fits 768px",
+    "Editable plan fits 1440px",
+    "Creation requires reviewed terms and produces a private seller invitation",
+    "Seller explicitly signs before funding is offered"
+  ],
+  "models": [
+    {
+      "action": "review",
+      "elapsedSeconds": 27.459,
+      "engine": "Ollama · qwen3.5:9b",
+      "verdict": {
+        "met": [
+          "Homepage and menu mockup described",
+          "Mobile layout described"
+        ],
+        "engine": "Ollama · qwen3.5:9b",
+        "missing": [
+          "Design review link provided"
+        ],
+        "reasoning": "The delivery claims state that the homepage/menu mockup is outlined (met) and mobile layout is described (met). However, the claim explicitly states the design review link is 'still missing' in one instance, while another instance lists it as provided but immediately follows with a warning to inspect independently. Given the explicit statement of missingness in the primary narrative of the claims, the criterion 'Design review link provided' cannot be fully met as a delivered fact without external verification, which is prohibited. Therefore, 2 out of 3 criteria are substantiated by the text.",
+        "releasePct": 66,
+        "injectionFlag": false,
+        "recommendation": "partial"
+      }
+    },
+    {
+      "action": "mediation",
+      "elapsedSeconds": 18.17,
+      "engine": "Ollama · qwen3.5:9b",
+      "proposal": {
+        "engine": "Ollama · qwen3.5:9b",
+        "summary": "Partial settlement proposed for 'Build & handoff' claim due to missing repository handoff evidence, acknowledging unverified file contents and fictional nature of the dispute.",
+        "rationale": "Given the explicit fictional nature of the dispute and the inability to inspect attached files or verify evidence, a 50% release is proposed. This acknowledges the seller's completion of described items (site/order form) while reserving funds for the unverified missing handoff, pending mutual acceptance of this exact proposal.",
+        "buyerPosition": "The site and order form are described but the critical repository handoff is missing; full payment is withheld until delivery.",
+        "sellerPosition": "The responsive site and order form are delivered as described; only the repository access is pending, warranting a partial settlement.",
+        "proposedReleasePct": 50
+      }
+    },
+    {
+      "action": "planning",
+      "elapsedSeconds": 27.778,
+      "engine": "Ollama · qwen3.5:9b",
+      "total": 1200,
+      "milestones": [
+        {
+          "title": "Homepage and Menu Mockup Approval",
+          "amount": 400,
+          "criteria": [
+            "Deliver high-fidelity mockups for homepage and menu pages.",
+            "Client confirms visual design direction and content placement.",
+            "All assets are organized in a shared folder for review."
+          ],
+          "dueInDays": 7
+        },
+        {
+          "title": "Responsive Site Build Completion",
+          "amount": 400,
+          "criteria": [
+            "Develop responsive HTML/CSS/JS code matching approved mockups.",
+            "Implement functional order form with basic validation logic.",
+            "Test site functionality across mobile and desktop browsers."
+          ],
+          "dueInDays": 14
+        },
+        {
+          "title": "Deployment Documentation and Handoff",
+          "amount": 400,
+          "criteria": [
+            "Provide step-by-step deployment guide for hosting provider.",
+            "Conduct live walkthrough session explaining site features.",
+            "Transfer all source code files and asset licenses to client."
+          ],
+          "dueInDays": 21
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "disputeAccessibility": [],
+  "planAccessibility": [],
+  "passed": true
+}

@@ -1,135 +1,92 @@
-import { useEffect, useRef, useState } from 'react';
-import { Nav } from '../Router';
-import { rpc, remember, money } from '../api';
-import { Risk } from './NewDeal';
-import { contractPdf } from '../contract';
+import { go } from '../navigation';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { ArrowDownToLine, ArrowLeftRight, ArrowUpRight, Check, CheckCheck, CircleDashed, Clock3, Copy, FileCheck2, FlaskConical, LockKeyhole, MessageSquare, Paperclip, RefreshCw, Send, ShieldCheck, Sparkles } from 'lucide-react';
+import { Footer, Nav } from '../Router';
+import { downloadJson, errorText, money, remember, rpc, saved, type View, type MilestoneData, type DisputeData } from '../api';
+import { Confirm, type Confirmation } from '../components/Confirm';
+import { FundButtons, type Act } from '../components/FundButtons';
+const labels:Record<string,string>={negotiating:'Updating proposal',pending:'Awaiting authorization',funded:'Authorized',submitted:'Ready for review',released:'Captured',refunded:'Hold released',disputed:'In discussion',authorizing:'Authorization needs review',settling:'Settlement needs review'};
+const date=(s:string)=>new Date(s).toLocaleString(undefined,{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'});
 
-declare global { interface Window { paypal?: any } }
-const STAGES = ['pending', 'funded', 'submitted', 'released'];
-const label: Record<string, string> = { pending: 'Awaiting funding', funded: 'Funded · on hold', submitted: 'Delivered · in review', released: 'Released', refunded: 'Refunded', disputed: 'In dispute', resolved: 'Resolved' };
-
-function loadPayPal(clientId: string) {
-  return new Promise<void>(res => {
-    if (window.paypal) return res();
-    const s = document.createElement('script');
-    s.src = `https://www.paypal.com/sdk/js?client-id=${clientId}&currency=USD&intent=authorize&components=buttons`;
-    s.onload = () => res(); document.body.appendChild(s);
-  });
-}
-
-export function DealRoom({ id, k }: { id: string; k: string }) {
-  const [v, setV] = useState<any>(null); const [err, setErr] = useState(''); const [busy, setBusy] = useState('');
-  const load = () => rpc('get', { id, k }).then(x => { setV(x); remember({ id, k, role: x.role, title: x.deal.title, savedAt: Date.now() }); }).catch(e => setErr(e.message));
-  useEffect(() => { load(); const t = setInterval(load, 15000); return () => clearInterval(t); }, [id, k]);
-  async function act(action: string, body: Record<string, unknown> = {}, msg = 'Working…') {
-    setBusy(msg); setErr('');
-    try { setV(await rpc(action, { id, k, ...body })); } catch (e: any) { setErr(e.message); }
-    setBusy('');
-  }
-  if (err && !v) return <><div className="bar"><Nav /></div><main className="page"><p role="alert" className="err">{err}</p></main></>;
-  if (!v) return <><div className="bar"><Nav /></div><main className="page"><p role="status">Loading deal…</p></main></>;
-  const { deal, milestones: ms, role } = v;
-  const held = ms.filter((m: any) => ['funded', 'submitted', 'disputed'].includes(m.status)).reduce((a: number, m: any) => a + m.amount, 0);
-  const released = ms.reduce((a: number, m: any) => a + (m.status === 'released' || m.status === 'resolved' ? m.releasedAmount || 0 : m.status === 'refunded' ? 0 : 0), 0);
-  const refunded = ms.reduce((a: number, m: any) => a + (['released', 'refunded'].includes(m.status) ? m.amount - (m.releasedAmount || 0) : 0), 0);
-  const pct = Math.round(released / deal.total * 100);
-  const sellerLink = v.counterpartyLink ? location.origin + v.counterpartyLink : '';
-  return <><div className="bar"><Nav /></div><main className="page">
-    <div className="roomhead">
-      <div><p className="eyebrow dark">DEAL {deal.id} · YOU ARE THE {role.toUpperCase()}</p><h1 className="display small">{deal.title}</h1>
-        <p className="muted">{deal.buyerName} → {deal.sellerName} · inspection window {deal.inspectionDays} days · <span className={`status ${deal.status}`}>{deal.status.replace('_', ' ')}</span></p></div>
-      <div className="headbtns"><button className="ghost" onClick={() => contractPdf(v)}>⬇ Contract PDF</button>{sellerLink && <button className="ghost" onClick={() => navigator.clipboard.writeText(sellerLink)}>Copy seller link</button>}</div>
+export function DealRoom({id,k}:{id:string;k:string}) {
+  const [v,setV]=useState<View|null>(null);const [err,setErr]=useState('');const [busy,setBusy]=useState('');const [notice,setNotice]=useState('');const [confirmation,setConfirmation]=useState<Confirmation|null>(null);
+  const alive=useRef(true);const mutation=useRef(false);const sequence=useRef(0);
+  const load=useCallback(async()=>{
+    if(mutation.current)return;
+    const n=++sequence.current;
+    try{const next=await rpc('get',{id,k});if(alive.current&&n===sequence.current){setV(next);setErr('');remember({id,k,role:next.role,title:next.deal.title,savedAt:Date.now(),demo:next.deal.engine==='guided-demo'||!!next.deal.market?.fictional});}}
+    catch(e){if(alive.current&&n===sequence.current)setErr(errorText(e));}
+  },[id,k]);
+  const act:Act=useCallback(async(action,body={},message='Saving your decision…')=>{
+    if(mutation.current)return false;mutation.current=true;++sequence.current;setBusy(message);setErr('');setNotice('');
+    try{const next=await rpc(action,{id,k,...body});if(alive.current)setV(next);return true;}
+    catch(e){if(alive.current)setErr(errorText(e));return false;}
+    finally{mutation.current=false;++sequence.current;if(alive.current)setBusy('');}
+  },[id,k]);
+  // The initial read and polling synchronize with the external API; state changes occur after awaiting fetch.
+  // oxlint-disable-next-line react/set-state-in-effect
+  useEffect(()=>{alive.current=true;void load();const t=setInterval(()=>{if(!document.hidden)void load();},15000);return()=>{alive.current=false;clearInterval(t);};},[load]);
+  async function exportReceipt(){setErr('');try{const result=await rpc<{payload:unknown;sha256:string;algorithm:string}>('receipt',{id,k});downloadJson(result,'escrowpal-'+id+'-evidence.json');setNotice('Evidence receipt downloaded · SHA-256 '+result.sha256.slice(0,16)+'…');}catch(e){setErr(errorText(e));}}
+  async function pdf(){try{const {contractPdf}=await import('../contract');if(v)contractPdf(v);}catch(e){setErr(errorText(e));}}
+  async function copyInvite(){if(!v?.counterpartyLink)return;try{await navigator.clipboard.writeText(location.origin+v.counterpartyLink);setNotice('Private seller link copied. Share it only with the seller.');}catch{setNotice('Copy the private link from the invitation box below.');}}
+  if(!v)return <><Nav/><main id="main" tabIndex={-1} className="shell page">{err?<div className="empty-state card"><LockKeyhole/><h1>This room needs a valid private link.</h1><p role="alert" className="error">{err}</p><button onClick={()=>void load()} className="btn-outline"><RefreshCw size={16}/> Try again</button></div>:<p role="status" className="empty-state">Opening your shared workspace…</p>}</main></>;
+  const {deal,milestones:ms,role}=v;const roleLinks=saved().filter(s=>s.id===id&&s.demo);const canSwitch=(deal.engine==='guided-demo'||!!deal.market?.fictional)&&roleLinks.some(s=>s.role!==role);
+  const open=ms.filter(m=>['funded','submitted','disputed','negotiating','settling'].includes(m.status)).reduce((n,m)=>n+m.amount,0);
+  const captured=ms.reduce((n,m)=>n+(m.releasedAmount||0),0);const uncaptured=ms.filter(m=>['released','refunded'].includes(m.status)).reduce((n,m)=>n+m.amount-(m.releasedAmount||0),0);const closed=ms.filter(m=>['released','refunded'].includes(m.status)).length;
+  return <><Nav/><main id="main" className="shell page room" tabIndex={-1}>
+    {deal.demo&&<div className="demo-ribbon"><div><FlaskConical size={18}/><span><b>{deal.engine==='guided-demo'?'Fictional sample workspace':'Demo ledger entries included'}</b><small>No real money moves in simulated holds.</small></span></div>{canSwitch&&<div className="role-switch" aria-label="Demo participant role">{(['buyer','seller'] as const).map(r=><button key={r} aria-pressed={role===r} disabled={!!busy} onClick={()=>{const s=roleLinks.find(s=>s.role===r);if(s)go('/d/'+id+'?k='+s.k);}}><ArrowLeftRight size={13}/>{r==='buyer'?'Buyer view':'Seller view'}</button>)}</div>}</div>}
+    {deal.market&&<section className="market-context"><div><p className="eyebrow">Market brief → measured pilot</p><b>{deal.market.selectedCandidate}</b><p>{deal.market.objective}</p></div><div><span className="tag green">{deal.market.engine} · reviewed by buyer</span><small>Analysis {deal.market.sha256.slice(0,12)}…</small><p>The digest binds this agreement to its analysis. Funding is separate from the model choice.</p></div></section>}<div className="room-heading"><div><p className="eyebrow"><LockKeyhole size={13}/> Private workspace <span>/</span> {role==='buyer'?'Buyer':'Seller'} view</p><h1>{deal.title}</h1><p className="room-parties"><span className="avatar mint">{deal.buyerName[0]}</span>{deal.buyerName}<span className="muted">→</span><span className="avatar peach">{deal.sellerName[0]}</span>{deal.sellerName}<span className="tag neutral">{deal.status.replaceAll('_',' ')}</span></p></div><div className="room-tools"><button className="btn-outline small" onClick={pdf}><ArrowDownToLine size={16}/> Agreement PDF</button><button className="btn-outline small" onClick={exportReceipt}><FileCheck2 size={16}/> Evidence receipt</button>{v.counterpartyLink&&<button className="icon-button" aria-label="Copy private seller link" title="Copy private seller link" onClick={copyInvite}><Copy size={17}/></button>}</div></div>
+    <div className="room-stats"><div><span>Agreement total</span><b>{money(deal.total)}</b><small>{ms.length} agreed milestones</small></div><div><span>Open authorizations</span><b>{money(open)}</b><small>{deal.demo?'Includes simulated entries':'PayPal sandbox only'}</small></div><div><span>Captured</span><b>{money(captured)}</b><small>{deal.demo?'Demo entries may be included':'To the sandbox merchant'}</small></div><div><span>Uncaptured after settlement</span><b>{money(uncaptured)}</b><small>Not a seller payout</small></div></div>
+    <div className="room-progress"><span>{closed} of {ms.length} milestones settled</span><div role="progressbar" aria-label="Milestones settled" aria-valuenow={closed} aria-valuemin={0} aria-valuemax={ms.length}><i style={{width:(closed/ms.length*100)+'%'}}/></div><span><ShieldCheck size={14}/> Human decisions required</span></div>
+    {deal.status==='awaiting_seller'&&<section className="signature-banner"><div><span className="eyebrow">Before we begin</span><h2>{role==='seller'?'A clear plan. Your choice.':'Ready for the other signature.'}</h2><p>{role==='seller'?'Review the scope, amounts, criteria, and review target below before accepting.':'Send the private invitation to '+deal.sellerName+'. Authorization opens after they accept.'}</p>{role==='buyer'&&<input aria-label="Private seller invitation link" readOnly value={location.origin+v.counterpartyLink} onFocus={e=>e.target.select()}/>}</div>{role==='seller'?<div className="actions"><button disabled={!!busy} onClick={()=>setConfirmation({title:'Accept this agreement?',detail:<p>You are signing as {deal.sellerName}. You agree to {ms.length} milestones totaling {money(deal.total)}. The review target is {deal.inspectionDays} days; it never releases payment automatically.</p>,confirm:'Accept terms as seller',action:()=>act('sign')})}><CheckCheck size={17}/> Accept the terms</button><button className="btn-outline" disabled={!!busy} onClick={()=>setConfirmation({title:'Decline this agreement?',detail:<p>No funding is recorded. Declining closes this agreement for both parties.</p>,noteLabel:'Reason for declining',confirm:'Decline agreement',danger:true,action:note=>act('decline',{reason:note})})}>Decline</button></div>:<button className="btn-outline" onClick={copyInvite}><Copy size={16}/> Copy invitation</button>}</section>}
+    <div className="room-layout"><section aria-labelledby="milestone-title"><div className="list-heading"><div><p className="eyebrow">One clear step at a time</p><h2 id="milestone-title">The work, and what’s next.</h2></div><span>{ms.length} milestones</span></div><ol className="milestone-list">{ms.map((m,i)=><Milestone key={m.id} m={m} i={i} v={v} k={k} act={act} busy={!!busy} confirm={setConfirmation}/>)}</ol></section>
+      <aside className="room-sidebar"><section className="card conversation"><div className="sidebar-heading"><MessageSquare size={19}/><h2>The conversation</h2></div><p className="muted small">Decisions and messages, in one place.</p><Comment act={act} busy={!!busy}/><ol className="activity-feed" tabIndex={0} aria-label="Agreement activity, newest first">{v.events.map(e=><li key={e.id} className={e.kind==='comment'?'comment-event':''}><div><span className={'event-dot '+e.role}/><b>{e.role==='system'?'EscrowPal':e.role==='buyer'?'Buyer':'Seller'}</b><time dateTime={e.createdAt}>{date(e.createdAt)}</time></div><p>{e.message}</p></li>)}</ol></section>
+      <section className="scope-panel"><div className="sidebar-heading"><ShieldCheck size={19}/><h3>Keep it clear.</h3></div><p>Review target: <b>{deal.inspectionDays} days</b> after delivery. Follow up when it passes; payment stays subject to a human decision.</p>{deal.risk.length>0&&<details><summary>Scope checklist · {deal.risk.length} flags</summary><ul>{deal.risk.map(r=><li key={r}>{r}</li>)}</ul><p className="small">A rules checklist, not a fraud probability.</p></details>}<details><summary>About this workspace</summary><p>Reviewer configured: {v.config.llmModel||'local rules'}. Each result identifies the engine that actually ran.</p><p>{v.config.paypalServer?'PayPal sandbox server integration configured.':'PayPal credentials absent. Explicit demo holds remain available.'} Captures go to the configured merchant. Seller payouts are not implemented.</p><p>Store: {v.config.storage}. Private links grant role access; protect them.</p></details></section></aside>
     </div>
-    <section className="stats">
-      <div><b>{money(deal.total)}</b><span>deal total</span></div><div><b>{money(held)}</b><span>held by PayPal</span></div>
-      <div><b>{money(released)}</b><span>released to seller</span></div><div><b>{money(refunded)}</b><span>refunded</span></div>
-    </section>
-    <div className="progress" role="progressbar" aria-valuenow={pct} aria-valuemin={0} aria-valuemax={100} aria-label="Paid out"><span style={{ width: pct + '%' }} /></div>
-    <div className="grid2 wide">
-      <div>
-        {deal.status === 'awaiting_seller' && <section className="card banner">
-          {role === 'seller' ? <><h2>Review and accept the terms</h2><p>Check each milestone and its acceptance criteria below. Once you accept, the buyer can fund the milestones.</p>
-            <button onClick={() => act('sign', {}, 'Signing…')}>Accept terms & sign</button><button className="ghost" onClick={() => { const r = prompt('Why are you declining?'); if (r !== null) act('decline', { reason: r }); }}>Decline</button></>
-            : <><h2>Waiting for {deal.sellerName} to accept</h2><p>Send them the private seller link. Funding opens once they sign.</p><input readOnly value={sellerLink} aria-label="Seller link" onFocus={e => e.target.select()} /></>}
-        </section>}
-        <section className="card"><div className="riskhead"><h2>Risk check</h2><Risk score={deal.riskScore} /></div>{deal.risk.length ? <ul className="risk">{deal.risk.map((r: string) => <li key={r}>{r}</li>)}</ul> : <p className="muted">No red flags found.</p>}</section>
-        <ol className="timeline">{ms.map((m: any, i: number) => <Milestone key={m.id} m={m} i={i} v={v} act={act} reload={load} />)}</ol>
-      </div>
-      <aside>
-        <section className="card"><h2>Activity</h2>
-          <form onSubmit={e => { e.preventDefault(); const t = (e.currentTarget.elements.namedItem('c') as HTMLInputElement); if (t.value.trim()) { act('comment', { text: t.value }); t.value = ''; } }}>
-            <label htmlFor="c" className="sr">Message the other party</label><input id="c" name="c" placeholder="Message the other party…" /><button className="small">Post</button></form>
-          <ol className="feed" tabIndex={0} aria-label="Activity log">{v.events.map((e: any) => <li key={e.id} className={e.role}><span className="who">{e.role}</span>{e.message}<time>{new Date(e.createdAt).toLocaleString()}</time></li>)}</ol>
-        </section>
-        <p className="muted small">AI engine: {v.config.llm ? 'LLM' : 'local rules (no LLM key set)'} · PayPal: {v.config.paypalServer ? 'sandbox, server capture' : 'sandbox buttons, simulated capture'}</p>
-      </aside>
-    </div>
-    {busy && <div className="toast" role="status">{busy}</div>}{err && <div className="toast err" role="alert">{err}</div>}
-  </main></>;
+    {busy&&<div role="status" className="operation-status"><span className="spinner"/>{busy}</div>}{notice&&<p role="status" className="notice">{notice}</p>}{err&&<p role="alert" className="error room-error">{err}</p>}
+    <Confirm value={confirmation} close={()=>setConfirmation(null)} error={err}/>
+  </main><Footer/></>;
+}
+function Comment({act,busy}:{act:Act;busy:boolean}) {
+  const [text,setText]=useState('');
+  return <form className="comment-form" onSubmit={async e=>{e.preventDefault();if(text.trim()&&await act('comment',{text}))setText('');}}><label className="sr-only" htmlFor="room-comment">Message the other participant</label><textarea id="room-comment" required rows={2} maxLength={1000} value={text} onChange={e=>setText(e.target.value)} placeholder="Keep the conversation moving…"/><button className="small btn-outline" disabled={busy||!text.trim()}><Send size={15}/> Post message</button></form>;
 }
 
-function FundButtons({ m, v, act }: any) {
-  const ref = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    let dead = false;
-    loadPayPal(v.config.paypalClientId).then(() => {
-      if (dead || !ref.current || !window.paypal) return; ref.current.innerHTML = '';
-      window.paypal.Buttons({
-        style: { layout: 'horizontal', height: 40, tagline: false, label: 'pay' },
-        createOrder: v.config.paypalServer
-          ? async () => (await rpc('ppCreate', { id: v.deal.id, k: new URLSearchParams(location.search).get('k'), mid: m.id })).id
-          : (_: any, a: any) => a.order.create({ intent: 'AUTHORIZE', purchase_units: [{ description: `EscrowPal: ${m.title}`.slice(0, 120), amount: { currency_code: 'USD', value: m.amount.toFixed(2) } }] }),
-        onApprove: async (data: any, a: any) => {
-          if (v.config.paypalServer) return act('fund', { mid: m.id, orderId: data.orderID }, 'Placing PayPal hold…');
-          const r = await a.order.authorize(); act('fund', { mid: m.id, authId: r?.purchase_units?.[0]?.payments?.authorizations?.[0]?.id, orderId: data.orderID }, 'Recording hold…');
-        },
-      }).render(ref.current);
-    });
-    return () => { dead = true; };
-  }, [m.id]);
-  return <div className="fund"><div ref={ref} className="ppbtn" /><button className="ghost small" onClick={() => act('fund', { mid: m.id }, 'Placing demo hold…')}>Demo hold (skip PayPal)</button></div>;
-}
-
-function Milestone({ m, i, v, act }: any) {
-  const role = v.role; const ev = v.evidence.filter((e: any) => e.milestoneId === m.id); const ds = v.disputes.filter((d: any) => d.milestoneId === m.id);
-  const [note, setNote] = useState(''); const [file, setFile] = useState<File | null>(null);
-  const k = new URLSearchParams(location.search).get('k');
-  const stage = Math.max(0, STAGES.indexOf(m.status === 'disputed' ? 'submitted' : m.status === 'refunded' || m.status === 'resolved' ? 'released' : m.status));
-  async function submit() {
-    let f: any = null;
-    if (file) { if (file.size > 2_500_000) return alert('Max 2.5 MB'); const b = await file.arrayBuffer(); let s = ''; new Uint8Array(b).forEach(x => s += String.fromCharCode(x)); f = { name: file.name, type: file.type, b64: btoa(s) }; }
-    await act('submit', { mid: m.id, note, file: f }, 'Uploading and running AI review…'); setNote(''); setFile(null);
+function Milestone({m,i,v,k,act,busy,confirm}:{m:MilestoneData;i:number;v:View;k:string;act:Act;busy:boolean;confirm:(c:Confirmation)=>void}) {
+  const [note,setNote]=useState('');const [file,setFile]=useState<File|null>(null);const [fileError,setFileError]=useState('');const fileRef=useRef<HTMLInputElement>(null);
+  const ev=v.evidence.filter(e=>e.milestoneId===m.id);const ds=v.disputes.filter(d=>d.milestoneId===m.id);const vd=m.verdict;const enabled=v.deal.status==='active';
+  const mock=(m as MilestoneData&{authId?:string}).authId?.startsWith('MOCK-');
+  const settled=['released','refunded'].includes(m.status);
+  async function submit(){
+    setFileError('');let attachment:{name:string;type:string;b64:string}|null=null;
+    try{
+      if(file){if(file.size>2500000){setFileError('Choose a file smaller than 2.5 MB.');return;}const bytes=new Uint8Array(await file.arrayBuffer());let raw='';for(let n=0;n<bytes.length;n+=32768)raw+=String.fromCharCode(...bytes.subarray(n,n+32768));attachment={name:file.name,type:file.type,b64:btoa(raw)};}
+      if(await act('submit',{mid:m.id,note,file:attachment},'Reviewing written delivery claims…')){setNote('');setFile(null);if(fileRef.current)fileRef.current.value='';}
+    }catch(e){setFileError(errorText(e));}
   }
-  const vd = m.verdict;
-  return <li className={`card ms ${m.status}`}>
-    <div className="mshead"><span className="idx">{i + 1}</span><div className="grow"><h3>{m.title}</h3><small>{m.dueDate ? `Due ${m.dueDate}` : 'No due date'}</small></div><span className={`pill ${m.status}`}>{label[m.status]}</span><b>{money(m.amount)}</b></div>
-    <div className="stepper" aria-hidden="true">{['Fund', 'Deliver', 'Review', 'Paid'].map((s, j) => <span key={s} className={j <= stage ? 'on' : ''}>{s}</span>)}</div>
-    <ul className="crit">{m.criteria.map((c: string) => <li key={c} className={vd ? (vd.met?.includes(c) ? 'ok' : 'no') : ''}>{c}</li>)}</ul>
-    {ev.length > 0 && <div className="evid"><b>Evidence</b>{ev.map((e: any) => <p key={e.id}>{e.note}{e.fileName && <> · <a href={`/api/rpc?id=${v.deal.id}&k=${k}&file=${e.id}`} target="_blank" rel="noreferrer">📎 {e.fileName}</a> ({Math.round(e.fileSize / 1024)} KB)</>}</p>)}</div>}
-    {vd && <div className={`verdict ${vd.recommendation}`}><b>AI review ({vd.engine}): {vd.recommendation.toUpperCase()} · {vd.releasePct}%</b><p>{vd.reasoning}</p>{vd.injectionFlag && <p className="err">⚠ The evidence tried to instruct the reviewer. It was ignored.</p>}</div>}
-    {m.status === 'pending' && role === 'buyer' && v.deal.status === 'active' && <FundButtons m={m} v={v} act={act} />}
-    {m.status === 'funded' && role === 'seller' && <div className="deliver">
-      <label htmlFor={'n' + m.id}>Delivery note (links, what changed)</label><textarea id={'n' + m.id} rows={3} value={note} onChange={e => setNote(e.target.value)} placeholder="e.g. Figma mockup of homepage and menu: https://figma.com/… screenshot attached" />
-      <label htmlFor={'f' + m.id}>Attach proof (image, PDF or zip, up to 2.5 MB)</label><input id={'f' + m.id} type="file" onChange={e => setFile(e.target.files?.[0] || null)} />
-      <button onClick={submit} disabled={!note.trim() && !file}>Submit delivery for review</button></div>}
-    {m.status === 'submitted' && role === 'buyer' && <div className="actions">
-      <button onClick={() => act('approve', { mid: m.id, pct: 100 }, 'Capturing payment…')}>Approve & release {money(m.amount)}</button>
-      {vd && vd.releasePct > 0 && vd.releasePct < 100 && <button className="ghost" onClick={() => act('approve', { mid: m.id, pct: vd.releasePct }, 'Partial capture…')}>Release AI-suggested {vd.releasePct}%</button>}
-      <button className="ghost" onClick={() => { const r = prompt('What needs to change?'); if (r) act('revise', { mid: m.id, note: r }); }}>Request changes</button>
-      <button className="ghost danger" onClick={() => { const r = prompt('Describe the problem for the mediator'); if (r) act('dispute', { mid: m.id, reason: r }, 'Opening dispute…'); }}>Open dispute</button></div>}
-    {m.status === 'submitted' && role === 'seller' && <p className="muted">Waiting for buyer review. Auto-release happens after {v.deal.inspectionDays} days with no response.</p>}
-    {ds.map((d: any) => <Dispute key={d.id} d={d} role={role} act={act} />)}
-    {m.releasedAmount != null && <p className="paid">Paid out {money(m.releasedAmount)}{m.captureId ? ` · capture ${m.captureId}` : ''}</p>}
+  function approve(pct:number){
+    const amount=Math.round(m.amount*pct)/100;
+    confirm({title:pct===0?'Release this authorization?':'Confirm '+money(amount)+' capture?',detail:<><p><b>{m.title}</b></p><div className="decision-amounts"><div><span>{mock?'Simulated capture':'Sandbox merchant capture'}</span><b>{money(amount)}</b></div><div><span>Remainder uncaptured</span><b>{money(m.amount-amount)}</b></div></div><p>{mock?'This records a simulated ledger entry. No PayPal request is made.':'This sends a final capture or void request to PayPal sandbox. A capture credits the configured merchant, not a seller payout.'} Review the actual work yourself before confirming.</p><p className="small muted">This finalizes the milestone. The room cannot reverse this decision.</p></>,confirm:mock?'Confirm demo settlement':'Confirm sandbox settlement',action:()=>act('approve',{mid:m.id,pct},'Recording the confirmed settlement…')});
+  }
+  return <li className={'milestone-card '+m.status}>
+    <div className="milestone-heading"><span className={'milestone-number '+(settled?'done':'')}>{settled?<Check size={20}/>:String(i+1).padStart(2,'0')}</span><div><h3>{m.title}</h3><p>{m.dueDate?'Target '+m.dueDate:'No delivery date set'}{mock?' · Demo ledger':''}</p></div><div className="milestone-value"><b>{money(m.amount)}</b><span className={'tag '+(settled?'green':m.status==='submitted'?'amber':m.status==='disputed'?'red':'neutral')}>{labels[m.status]||m.status}</span></div></div>
+    <div className="milestone-body"><p className="mini-heading">What “done” looks like</p><ul className="criteria">{m.criteria.map(c=><li key={c} className={vd?.met.includes(c)?'addressed':vd?'unaddressed':''}>{vd?.met.includes(c)?<Check size={16}/>:<CircleDashed size={16}/>}<span>{c}</span>{vd&&<small>{vd.met.includes(c)?'Addressed':'Needs detail'}</small>}</li>)}</ul>
+      {ev.length>0&&<section className="evidence-section"><p className="mini-heading"><Paperclip size={13}/> Submitted delivery</p>{ev.map(e=><div className="evidence-note" key={e.id}><p>{e.note||'Proof file attached.'}</p>{e.fileName&&<a className="attachment" href={'/api/rpc?'+new URLSearchParams({id:v.deal.id,k,file:e.id})}><ArrowDownToLine size={14}/>{e.fileName}<small>{Math.ceil((e.fileSize||0)/1024)} KB</small></a>}</div>)}</section>}
+      {vd&&<div className="review-card"><div className="review-card-heading"><span><Sparkles size={17}/> Advisory review</span><span className="tag green">{vd.releasePct}% suggested capture</span></div><p>{vd.reasoning}</p><div className="review-meta"><span>{vd.engine}</span><span>{vd.met.length}/{m.criteria.length} claims addressed</span></div><small>Written claims only. Files and links were not inspected. The buyer decides.</small>{vd.injectionFlag&&<p role="alert" className="error">The delivery tried to instruct the reviewer. That instruction was flagged and ignored.</p>}</div>}
+      {m.reviewDue&&m.status==='submitted'&&<p className={'review-target '+(m.reviewOverdue?'overdue':'')}><Clock3 size={15}/>{m.reviewOverdue?'Review target passed':'Review target'}: {date(m.reviewDue)}. No automatic release.</p>}
+      {enabled&&m.status==='pending'&&v.role==='buyer'&&<FundButtons m={m} v={v} k={k} act={act} busy={busy} confirm={confirm}/>}
+      {enabled&&['funded','submitted'].includes(m.status)&&v.role==='seller'&&<details className="delivery-form" open={m.status==='funded'}><summary>{m.status==='submitted'?'Add delivery details & run a fresh review':'Share the delivery'}</summary><form onSubmit={e=>{e.preventDefault();void submit();}}><label htmlFor={'note-'+m.id}>What did you deliver?<textarea id={'note-'+m.id} rows={4} maxLength={4000} value={note} onChange={e=>setNote(e.target.value)} placeholder="Explain how the work addresses each criterion. Add links for the buyer to inspect."/></label>{v.deal.engine==='guided-demo'&&<button type="button" className="text-link small" onClick={()=>setNote('Fictional sample delivery claims: '+m.criteria.join('; ')+'. Review link for this fictional demo: https://example.com/design-review. The buyer must inspect the actual work independently.')}>Fill a fictional complete delivery <ArrowUpRight size={13}/></button>}<label htmlFor={'file-'+m.id}>Optional proof file · up to 2.5 MB<input ref={fileRef} id={'file-'+m.id} type="file" onChange={e=>{setFile(e.target.files?.[0]||null);setFileError('');}}/></label><button disabled={busy||(!note.trim()&&!file)}><Sparkles size={16}/> Submit for advisory review</button>{fileError&&<p role="alert" className="error">{fileError}</p>}</form></details>}
+      {enabled&&m.status==='submitted'&&v.role==='buyer'&&<div className="decision-actions"><button disabled={busy} onClick={()=>approve(100)}><CheckCheck size={17}/> Approve {money(m.amount)}</button>{vd&&vd.releasePct>0&&vd.releasePct<100&&<button className="btn-outline" disabled={busy} onClick={()=>approve(vd.releasePct)}>Settle at {vd.releasePct}%</button>}<button className="text-link" disabled={busy} onClick={()=>confirm({title:'What needs another pass?',detail:<p>The authorization stays open. Your message returns this milestone to the seller for revision.</p>,noteLabel:'Requested changes',confirm:'Request changes',action:note=>act('revise',{mid:m.id,note})})}>Request changes</button><button className="text-link" disabled={busy} onClick={()=>approve(0)}>Release hold</button></div>}
+      {enabled&&['funded','submitted'].includes(m.status)&&<button className="text-link dispute-link" disabled={busy} onClick={()=>confirm({title:'Let’s hear both sides.',detail:<p>This opens a discussion about {m.title}. A proposed split is advisory. Both participants must accept the exact same proposal before it can settle.</p>,noteLabel:'What is in dispute?',confirm:'Open a dispute',action:reason=>act('dispute',{mid:m.id,reason})})}>Discuss a dispute <ArrowUpRight size={14}/></button>}
+      {ds.map(d=><Dispute key={d.id} d={d} m={m} v={v} act={act} busy={busy} confirm={confirm}/>)}
+      {settled&&<div className="settlement-record"><CheckCheck size={19}/><div><b>{money(m.releasedAmount||0)} {mock?'simulated capture':'sandbox capture'} recorded</b><p>{money(m.amount-(m.releasedAmount||0))} remained uncaptured.{m.captureId?' Capture reference: '+m.captureId:''}</p></div></div>}
+      {['settling','authorizing'].includes(m.status)&&<p role="alert" className="error">The payment result needs reconciliation. Check the PayPal record before attempting further payment actions. Automatic retries are blocked.</p>}
+    </div>
   </li>;
 }
-
-function Dispute({ d, role, act }: any) {
-  const [t, setT] = useState(''); const med = d.mediator; const mine = role === 'buyer' ? d.buyerAccepts : d.sellerAccepts;
-  return <div className="dispute"><h4>⚖ Dispute opened by {d.openedBy}</h4><p>“{d.reason}”</p>
-    {med && <div className="mediator"><b>AI mediator ({med.engine})</b><p>{med.summary}</p><p><b>Buyer:</b> {med.buyerPosition}</p><p><b>Seller:</b> {med.sellerPosition}</p>
-      <p className="proposal">Proposal: release <b>{med.proposedReleasePct}%</b> to the seller and refund the rest. {med.rationale}</p>
-      {!d.resolution && (mine ? <p className="muted">You accepted. Waiting for the other party.</p> : <button onClick={() => act('accept', { did: d.id }, 'Recording acceptance…')}>Accept proposal</button>)}
-      {d.resolution && <p className="paid">{d.resolution}</p>}</div>}
-    {!d.resolution && <div className="row2"><input aria-label="Your side of the story" value={t} onChange={e => setT(e.target.value)} placeholder={role === 'seller' ? 'Your side of the story…' : 'Add details…'} /><button className="small" onClick={() => { if (t) { act('respond', { did: d.id, text: t }, 'Mediator is re-evaluating…'); setT(''); } }}>Send to mediator</button></div>}
-  </div>;
+function Dispute({d,m,v,act,busy,confirm}:{d:DisputeData;m:MilestoneData;v:View;act:Act;busy:boolean;confirm:(c:Confirmation)=>void}){
+  const [text,setText]=useState('');const mine=v.role==='buyer'?d.buyerAccepts:d.sellerAccepts;const med=d.mediator;
+  return <section className="dispute-panel"><p className="mini-heading">A conversation, before a conclusion</p><h4>Dispute opened by the {d.openedBy}</h4><blockquote>{d.reason}</blockquote>{med&&<><div className="mediation"><div className="review-card-heading"><b><Sparkles size={16}/> Suggested resolution</b><span className="tag amber">{med.proposedReleasePct}% capture</span></div><p>{med.summary}</p><dl><div><dt>Buyer’s position</dt><dd>{med.buyerPosition}</dd></div><div><dt>Seller’s position</dt><dd>{med.sellerPosition}</dd></div></dl><p>{med.rationale}</p><small>{med.engine} · Non-binding advice · Files and links uninspected</small></div><div className="acceptance-status"><span className={d.buyerAccepts?'accepted':''}>{d.buyerAccepts?<Check size={14}/>:<CircleDashed size={14}/>} Buyer acceptance</span><span className={d.sellerAccepts?'accepted':''}>{d.sellerAccepts?<Check size={14}/>:<CircleDashed size={14}/>} Seller acceptance</span></div>{!d.resolution&&m.status==='disputed'&&<button className="btn-outline" disabled={busy||!!mine} onClick={()=>confirm({title:'Accept this exact proposal?',detail:<><p>Proposal <code>{d.proposalHash.slice(0,12)}</code>: capture {money(Math.round(m.amount*med.proposedReleasePct)/100)} of {money(m.amount)}. The remainder stays uncaptured.</p><p>Both parties’ acceptance of this same proposal triggers final settlement. If it changes, both must accept again. {v.deal.demo?'This workspace includes simulated ledger entries.':'This is PayPal sandbox only.'}</p></>,confirm:'Accept '+med.proposedReleasePct+'% proposal',action:()=>act('accept',{did:d.id,proposalHash:d.proposalHash})})}>{mine?'You accepted · waiting for the other side':'Accept this proposal'}</button>}</>}
+    {d.resolution?<p className="settlement-record"><CheckCheck size={18}/>{d.resolution}</p>:m.status==='disputed'&&<form className="dispute-response" onSubmit={async e=>{e.preventDefault();if(text.trim()&&await act('respond',{did:d.id,text},'Updating the advisory proposal…'))setText('');}}><label htmlFor={'response-'+d.id}>Add your perspective<textarea id={'response-'+d.id} required rows={3} maxLength={2000} value={text} onChange={e=>setText(e.target.value)} placeholder="Clarify the missing work or propose a next step."/></label><p className="small muted">Updating the proposal clears both acceptances.</p><button className="small" disabled={busy||!text.trim()}><Send size={15}/> Update proposal</button></form>}
+  </section>;
 }

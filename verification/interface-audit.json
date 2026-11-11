@@ -1,0 +1,47 @@
+{
+  "pages": [
+    {
+      "page": "landing",
+      "width": 1440,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "page": "landing",
+      "width": 768,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "page": "landing",
+      "width": 375,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "page": "new",
+      "width": 1440,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "page": "room",
+      "width": 1440,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "page": "room",
+      "width": 768,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "page": "room",
+      "width": 375,
+      "overflow": false,
+      "violations": []
+    }
+  ],
+  "errors": []
+}

@@ -1,0 +1,6 @@
+{
+  "passed": true,
+  "check": "Created and signed agreement survived a graceful process restart",
+  "status": "active",
+  "milestoneCount": 3
+}

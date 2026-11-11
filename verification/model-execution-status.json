@@ -1,0 +1,11 @@
+{
+  "localLayaEnabled": false,
+  "newVmModelCacheRemoved": true,
+  "modelWeightsIncluded": false,
+  "privateSourceIncluded": false,
+  "ownerPrivateSetupModified": false,
+  "ownerReportedAccuracyPercent": 84,
+  "reportedAccuracyIndependentlyVerified": false,
+  "furtherModelTestsAfterStopRequest": false,
+  "recordedExampleAvailable": true
+}

@@ -1,46 +1,90 @@
-# EscrowPal: two-sided AI escrow on PayPal
+# EscrowPal 4 — market evidence to measured pilots
 
-Built for **Build What's Next with PayPal and AI** (Devpost, due Thu Nov 12 2026, 3:00 PM ET). Live demo: https://escrowpal.vercel.app
+EscrowPal connects a market brief, a bounded Laya comparison, a reviewed pilot agreement, and PayPal sandbox milestone payments.
 
-Freelancers and small online sellers get burned two ways: buyers vanish after the work is delivered, or sellers vanish after getting paid. EscrowPal puts an AI agent between the two sides. **The AI never moves money on its own.** It drafts, checks, flags and mediates, and only the people involved can release or refund funds.
+Watch the new market-to-pilot walkthrough. [YouTube demo](https://youtu.be/36SAwZgmN_c)
 
-## Features (v2)
-- **AI deal planner**: turns a plain-English deal into 2–5 milestones with checkable acceptance criteria, due dates and an inspection window. Milestones stay editable.
-- **Risk score (0–100)**: flags scam patterns, urgency pressure, off-platform payment requests, missing deadlines, all-up-front structures and high value.
-- **Two-sided deal room**: separate secret links for buyer and seller. Roles are enforced on the server. The seller must sign the terms before any money is held.
-- **PayPal holds**: each milestone is funded with Checkout `intent=AUTHORIZE`. Release triggers a server-side **capture** (full or partial), and a refund triggers a **void**. Without sandbox credentials it falls back to a clearly labelled demo hold.
-- **Proof uploads**: files up to 2.5 MB plus links and notes. Files are served only to deal parties, under a strict CSP.
-- **AI judge**: checks the evidence against each criterion (pass / partial / fail). A prompt-injection guard treats evidence as untrusted data.
-- **Approve, partial release or revision request**.
-- **Auto-release**: if the buyer is silent once the inspection window has passed, the milestone is released (inspired by real escrow services).
-- **Disputes with an AI mediator**: both sides state their case. The mediator proposes a split with reasoning, the deal settles when both accept, and funds are split by capture + void.
-- **Activity feed and comments**, with 15 s live refresh. Every action is recorded in an audit log.
-- **Contract PDF** with the terms, signatures and audit trail.
-- **My deals** dashboard (links saved on this device), plus seller invite by link, QR or email.
+The hackathon project page is on Devpost. [EscrowPal](https://devpost.com/software/escrowpal)
 
-## Stack
-- Vite + React + TypeScript SPA. Vercel functions: `api/rpc.ts` (single RPC endpoint) and `api/_lib/*`.
-- **Neon Postgres + Drizzle ORM** (`api/_lib/schema.ts`, migrations in `drizzle/`). Tables: deals, milestones, evidence, disputes, events.
-- PayPal JS SDK + Orders v2 / Payments v2 REST (`api/_lib/paypal.ts`).
-- LLM via any OpenAI-compatible API (Groq Llama 3.3 70B by default) with JSON output. When no key is set, transparent local rules run instead, and the UI shows which engine was used.
-- Tests: `npm test` (vitest) and `node scripts/e2e-api.mjs <url>`, a full live API run (plan → sign → hold → proof → release → dispute → settle).
+## Start locally
 
-## Setup
-```bash
-npm i
-cp .env.example .env.local
-npx drizzle-kit migrate      # needs DATABASE_URL
-npx vercel dev
+Use Node.js 24 LTS.
+
+```sh
+npm ci
+npm run dev
 ```
-| Variable | Purpose |
-|---|---|
-| `DATABASE_URL` | Neon Postgres connection string (required) |
-| `VITE_PAYPAL_CLIENT_ID` | Sandbox REST app client ID (defaults to PayPal's public `sb` ID) |
-| `PAYPAL_CLIENT_ID`, `PAYPAL_CLIENT_SECRET` | Real sandbox authorize, capture and void. Without them, demo holds are used |
-| `LLM_API_KEY`, `LLM_BASE_URL`, `LLM_MODEL` | AI planner, judge and mediator. Without them, local rules are used |
 
-## Security notes
-Auth uses capability links: unguessable 24-character tokens, one per role. Pages send `Referrer-Policy: no-referrer`. This is a prototype using sandbox money; it is not a licensed escrow service. PayPal honors authorizations for 3 days (29-day validity window), so long milestones need reauthorization.
+Open **http://127.0.0.1:4173/market**. Choose **Open recorded Laya example · no model loads** to explore the complete market-to-agreement workflow without loading a model. Quotes, counts, and participants in the example are fictional.
 
-## Inspirations
-AutoTrust AI Escrow, Agent Pay, Flow8 and AutoTrust PayMesh on Devpost, plus Escrow.com's inspection period. See PLAN.md.
+**Laya is disabled locally in this delivery. No model weights are bundled.** The app does not automatically download or start Laya. The recorded example contains an actual earlier Laya response and clearly labels it as recorded. New analyses without a configured model still compute evidence checks and observed ratios, but show the model recommendation as unavailable.
+
+The existing buyer/seller workspace, delivery review, dispute workflow, PDF export, and evidence receipts remain available. Optional Ollama configuration for those earlier workflows remains separate from the Laya integration.
+
+## The pipeline
+
+1. **Declared evidence:** two or three candidate channels/offers, dated source references, quoted costs, and optional observed click/impression counts.
+2. **Observed signals:** compute price comparisons, source coverage, affordability and CTR from the supplied counts. Source contents are not fetched or independently verified.
+3. **Laya comparison:** send bounded choice questions with listed and reversed option orders. Validate every option and probability. A changed choice produces manual review; missing/invalid responses produce no substituted model result.
+4. **Reviewed pilot:** choose a candidate, explain a manual override when applicable, review exact-cent research/delivery/reporting milestones, and sign as buyer.
+5. **PayPal milestones:** seller acceptance precedes authorization. The server-created order includes the sealed market-analysis digest in PayPal's custom_id and its milestone in reference_id. Capture/void decisions remain explicit human actions.
+
+The analysis snapshot is stored in PostgreSQL and exported with a reproducible SHA-256 digest. Its digest follows into the agreement, payment-order metadata, activity record, agreement PDF, and evidence receipt. A digest checks a saved record's integrity, not the truth of its source claims.
+
+## Accuracy and training scope
+
+**84% accuracy is an owner-reported figure.** Its benchmark task, holdout, and applicability were not independently verified for this build. It is not presented as validated market-decision accuracy.
+
+A separate preserved GPU research run completed four epochs on a Tesla T4. It evaluated delayed brand recall on 605 held-out ads across 58 advertiser groups, with 20.75 percentage points of mean absolute error. That regression metric is not classification accuracy. Creative text did not demonstrate additional benefit over the metadata control in that experiment.
+
+The private research weights, dataset, source project, and detailed experimental implementation are excluded. The optional serving integration uses a separate public pretrained Laya checkpoint. Current market-choice accuracy is unmeasured.
+
+## Optional Laya endpoint — only when explicitly enabled
+
+For an existing compatible endpoint, privately set:
+
+```dotenv
+LAYA_BASE_URL=https://your-model-service
+LAYA_API_KEY=
+```
+
+The adapter calls POST /v1/systemone with typed choice questions. It accepts only known options, normalized finite probabilities, and an allowed winning choice. The model never receives a payment tool.
+
+The optional companion source is under services/laya. Its preparation command downloads approximately 1.7 GB of pinned public ONNX weights and verifies their hashes. **Do not run these commands until you want to install and load a local model:**
+
+```sh
+npm run laya:prepare
+npm run laya:start
+```
+
+The public model is [Laya by Convai Innovations](https://huggingface.co/convaiinnovations/laya), accessed through [@receptron/laya](https://github.com/receptron/laya). The model has Apache-2.0 terms; the SDK has MIT terms. Neither is represented as a model trained by EscrowPal. A remote model service must use HTTPS; nonlocal companion binding requires a strong API key.
+
+## PayPal sandbox configuration
+
+Set PAYPAL_CLIENT_ID and PAYPAL_CLIENT_SECRET privately for a PayPal sandbox REST app. The server creates AUTHORIZE orders, verifies authorization reference/status/currency/amount, and issues final capture or void requests with stable operation IDs.
+
+Missing credentials do not silently simulate a vendor payment. Users explicitly choose a demo hold. Demo ledger entries never call PayPal. No real-world funds move in the demo.
+
+There is no automatic release after a review target passes. A partial capture leaves the remainder uncaptured; it is not a refund of previously captured money. Captures credit the configured sandbox merchant, not a seller payout. Uncertain vendor results block automatic retries and require reconciliation.
+
+A credential-backed PayPal sandbox transaction was not performed in this upgrade. PayPal order binding and failure behavior were verified with mocked vendor responses.
+
+## Storage and hosting
+
+Local PGlite initializes persistent PostgreSQL data in .data/escrowpal. Run one process against that directory. Hosted deployments use Neon through DATABASE_URL. The two migrations are under drizzle.
+
+For an intended hosted database, set DATABASE_URL in .env.local, then run npm run db:migrate. Vercel builds with npm run build and serves dist plus api/rpc.ts. Optional model endpoints must be reachable from the hosting environment.
+
+## Verification record
+
+Before local Laya execution was disabled, 71 logic/database/API tests passed. They cover payment state, market validation, stable option parsing, manual-override rules, immutable analysis receipts, and PayPal order metadata. A real Laya market-choice canary also completed before the stop request.
+
+After the final changes, frontend/API type checks, lint, and the production build passed. No further model tests, training, or local inference were run after the owner requested stopping.
+
+See VERIFICATION.md, submission/DEVPOST_DRAFT.md, and submission/CLAIMS.md. The new narrated walkthrough covers the market brief, saved Laya comparison, pilot agreement, simulated authorization, and exports. [YouTube demo](https://youtu.be/36SAwZgmN_c)
+
+## Limits
+
+This is a hackathon prototype, not a licensed escrow service or validated market forecasting product. There is no production custody, seller payout system, identity verification, link revocation, or reconciliation console. The model reviews bounded declared evidence and does not prove that linked work or source statements are correct. Private role links are bearer credentials; protect them.
+
+MIT license applies to this independently implemented integration and app source. Third-party components retain their own terms.

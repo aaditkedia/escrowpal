@@ -1,0 +1,10 @@
+{
+  "passed": true,
+  "npmCi": true,
+  "productionBuild": true,
+  "freshLocalApi": true,
+  "modelConfigured": false,
+  "paypalConfigured": false,
+  "guidedDemoMilestones": 3,
+  "source": "release ZIP extracted to an empty folder"
+}
